@@ -7,7 +7,7 @@ describe("nested entities", () => {
         const query = {
             movie: {
                 id: "1234",
-                relate: {
+                lookup: {
                     director: true,
                 },
             },
@@ -56,8 +56,8 @@ describe("nested entities", () => {
         const query = {
             movie: {
                 id: "1234",
-                relate: {
-                    director: "directorId",
+                lookup: {
+                    director: "directorId", // Lookup director entity by directorId.
                 },
             },
         };

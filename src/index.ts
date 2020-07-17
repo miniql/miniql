@@ -13,24 +13,25 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
         }
         const resolver = typeRoot[entityKey]; // Todo: check for missing resolver.
         const subQuery = query[entityKey];
-        output[entityKey] = await resolver(subQuery, context);
-        if (subQuery.relate) {
-            for (const relateKey of Object.keys(subQuery.relate)) {
-                let entityRelationIdKey = subQuery.relate[relateKey];
-                if (typeof(entityRelationIdKey) !== "string") {
-                    entityRelationIdKey = relateKey;
+        output[entityKey] = await resolver(subQuery, context); //TODO: Do these in parallel.
+        if (subQuery.lookup) {
+            for (const nestedEntityKey of Object.keys(subQuery.lookup)) {
+                let entityIdFieldName = subQuery.lookup[nestedEntityKey];
+                if (typeof(entityIdFieldName) !== "string") {
+                    entityIdFieldName = nestedEntityKey;
                 }
-                const relationQueryId = output[entityKey][entityRelationIdKey];
-                const relateQuery: any = {};
-                relateQuery[relateKey] = {
+                const nestedEntityId = output[entityKey][entityIdFieldName];
+                const nestedEntityQuery: any = {
                     type: "query",
-                    id: relationQueryId,
                 };
-                const relateResult = await miniql(relateQuery, root, context);
-                if (relateKey !== entityRelationIdKey) {
-                    delete output[entityKey][entityRelationIdKey];
+                nestedEntityQuery[nestedEntityKey] = {
+                    id: nestedEntityId,
+                };
+                const nestedResult = await miniql(nestedEntityQuery, root, context);
+                if (nestedEntityKey !== entityIdFieldName) {
+                    delete output[entityKey][entityIdFieldName];
                 }
-                output[entityKey][relateKey] = relateResult[relateKey];
+                output[entityKey][nestedEntityKey] = nestedResult[nestedEntityKey];
             }
         }
     }
