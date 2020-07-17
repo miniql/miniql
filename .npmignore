@@ -1,0 +1,15 @@
+src/
+node_modules/
+.vscode/
+.gitignore
+*.log
+r.bat
+test/
+build/test/
+todo.txt
+.nyc_output/
+tsconfig.json
+tslint.json
+nodemon.json
+jest.config.js
+.env

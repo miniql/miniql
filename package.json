@@ -1,0 +1,55 @@
+{
+    "name": "miniql",
+    "version": "0.0.1",
+    "description": "A tiny JSON query language inspired by GraphQL",
+    "main": "build/index.js",
+    "types": "build/index.d.ts",
+    "scripts": {
+        "start": "node ./build/cli.js",
+        "start:dev": "nodemon",
+        "c": "npm run clean",
+        "clean": "rm -rf build/*",
+        "b": "npm run build",
+        "build": "tsc",
+        "cb": "npm run clean-build",
+        "clean-build": "npm run clean && npm run build",
+        "bw": "npm run build:watch",
+        "build:watch": "tsc --watch",
+        "cbw": "npm run clean-build:watch",
+        "clean-build:watch": "npm run clean-build && npm run build:watch",
+        "prepublishOnly": "npm run clean && npm test && npm run build",
+        "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
+        "pretest": "npm run lint",
+        "t": "npm run test",
+        "test": "jest",
+        "tw": "npm run test:watch",
+        "test:watch": "jest --watch"
+    },
+    "bin": {
+        "miniql-cli": "./bin/cli"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://ashleydavis@github.com/ashleydavis/miniql.git"
+    },
+    "keywords": [],
+    "author": "ashley@codecapers.com.au",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/ashleydavis/miniql/issues"
+    },
+    "homepage": "https://github.com/ashleydavis/miniql#readme",
+    "dependencies": {
+        "moment": "2.22.2"
+    },
+    "devDependencies": {
+        "@types/jest": "^26.0.4",
+        "@types/node": "14.0.13",
+        "jest": "^26.1.0",
+        "source-map-support": "0.5.19",
+        "ts-jest": "^26.1.3",
+        "ts-node": "8.10.2",
+        "tslint": "^6.1.2",
+        "typescript": "^3.9.7"
+    }
+}
