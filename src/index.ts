@@ -21,7 +21,7 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
             // Lookup nested entities.
             //
             for (const entityName of Object.keys(subQuery.lookup)) {
-                let lookup = subQuery.lookup[entityName];
+                const lookup = subQuery.lookup[entityName];
                 let entityIdFieldName: string;
                 let outputFieldName: string;
                 if (t(lookup).isObject) {

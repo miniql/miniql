@@ -57,7 +57,7 @@ describe("nested entities", () => {
             movie: {
                 id: "1234",
                 lookup: {
-                    director: { from: "directorId" } // Lookup director entity by directorId.
+                    director: { from: "directorId", }, // Lookup director entity by directorId.
                 },
             },
         };
@@ -176,7 +176,7 @@ describe("nested entities", () => {
                     actor: {
                         from: "actorIds",
                         as: "actors",
-                    }
+                    },
                 },
             },
         };
