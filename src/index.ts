@@ -23,11 +23,14 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
             for (const entityName of Object.keys(subQuery.lookup)) {
                 let lookup = subQuery.lookup[entityName];
                 let entityIdFieldName: string;
+                let outputFieldName: string;
                 if (t(lookup).isObject) {
                     entityIdFieldName = lookup.from; //todo: Assert that from is a string!
+                    outputFieldName = lookup.as || entityName;
                 }
                 else if (lookup === true) {
                     entityIdFieldName = entityName;
+                    outputFieldName = entityName;
                 }
                 else {
                     throw new Error("Unexpected lookup descriptor: " + JSON.stringify(lookup, null, 4)); //todo: test me.
@@ -46,11 +49,11 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
                     nestedEntity = await lookupEntity(entityName, nestedEntityId, root, context);
                 }
 
-                if (entityName !== entityIdFieldName) {
+                if (outputFieldName !== entityIdFieldName) {
                     delete output[entityKey][entityIdFieldName];
                 }
 
-                output[entityKey][entityName] = nestedEntity;
+                output[entityKey][outputFieldName] = nestedEntity;
             }
         }
     }
