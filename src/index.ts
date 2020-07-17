@@ -21,12 +21,19 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
             // Lookup nested entities.
             //
             for (const entityName of Object.keys(subQuery.lookup)) {
-                let entityIdFieldName = subQuery.lookup[entityName];
-                if (!t(entityIdFieldName).isString) {
+                let lookup = subQuery.lookup[entityName];
+                let entityIdFieldName: string;
+                if (t(lookup).isObject) {
+                    entityIdFieldName = lookup.from; //todo: Assert that from is a string!
+                }
+                else if (lookup === true) {
                     entityIdFieldName = entityName;
                 }
+                else {
+                    throw new Error("Unexpected lookup descriptor: " + JSON.stringify(lookup, null, 4)); //todo: test me.
+                }
 
-                const nestedEntityId = output[entityKey][entityIdFieldName];
+                const nestedEntityId = output[entityKey][entityIdFieldName]; //TODO: Error check the desc.
                 let nestedEntity: any;
                 if (t(nestedEntityId).isArray) {
                     nestedEntity = await Promise.all(

@@ -57,7 +57,7 @@ describe("nested entities", () => {
             movie: {
                 id: "1234",
                 lookup: {
-                    director: "directorId" // Lookup director entity by directorId.
+                    director: { from: "directorId" } // Lookup director entity by directorId.
                 },
             },
         };
