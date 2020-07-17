@@ -45,3 +45,5 @@ Follow the developer on Twitter for updates: [@ashleydavis75](https://twitter.co
 - Nested entity resolution.
 - Renames / aliases.
 - Hooks - be notifed when particular entities/fields have been updated.
+- Do relationships between a separate table.
+- Do relationships for an array of ids.
