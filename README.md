@@ -13,7 +13,26 @@ Sound interesting? Please star this repo.
 Follow the developer on Twitter for updates: [@ashleydavis75](https://twitter.com/ashleydavis75).
 
 
+## Motivation
+
+- GraphQL is too big.
+- GraphQL introduces a new language into your stack.
+- I don't want to define full "schema".
+- It's tedious to have to specify everything you want returned.
+
+## Aims
+
+- To be tiny.
+- To easily create queries and implement the backend.
 
 
+## Features
+
+- Minimal schema is required - schema is optional to make relationships work.
+- If no specifc fields are requests for an entity, all fields are returned.
 
 
+## TODO
+
+- Authentication / authorization.
+- Restrict returned fields.

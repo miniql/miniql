@@ -40,7 +40,6 @@
     },
     "homepage": "https://github.com/ashleydavis/miniql#readme",
     "dependencies": {
-        "moment": "2.22.2"
     },
     "devDependencies": {
         "@types/jest": "^26.0.4",

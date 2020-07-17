@@ -1,15 +1,14 @@
-import * as moment from "moment";
 
-export class ExampleClass {
+//
+// Execute a query.
+//
+export async function miniql(query: any, root: any, context: any): Promise<any> {
 
-    public test(): void {
-        console.log("Test: " + moment().format("YYYY-DD-MM"));
+    const output: any = {};
+
+    for (const key of Object.keys(query)) {
+        output[key] = await root[key](query[key], context);
     }
 
-    public returnsTrue(): boolean {
-        return true;
-    }
-
+    return output;
 }
-
-//TODO: Code for your reusable code module goes here.
