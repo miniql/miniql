@@ -2,22 +2,25 @@ import { miniql } from "..";
 
 describe("entity query", () => {
 
-    it("can get entity by name", async ()  => {
+    it("can retreive entity", async ()  => {
 
         const query = {
+            type: "query",
             movie: {
                 id: "1234",
             },
         };
 
         const root = {
-            movie: async (query: any, context: any) => {
-                expect(query.id).toBe("1234");
-
-                return {
-                    name: "Inception",
-                    year: 2010,
-                };
+            query: {
+                movie: async (query: any, context: any) => {
+                    expect(query.id).toBe("1234");
+    
+                    return {
+                        name: "Inception",
+                        year: 2010,
+                    };
+                },
             },
         };
 
@@ -30,7 +33,7 @@ describe("entity query", () => {
         });
     });
 
-    it("can get multiple entities", async ()  => {
+    it("can retreive multiple entities", async ()  => {
 
         const query = {
             movie: {
@@ -42,21 +45,23 @@ describe("entity query", () => {
         };
 
         const root = {
-            movie: async (query: any, context: any) => {
-                expect(query.id).toBe("1234");
-
-                return {
-                    name: "Inception",
-                    year: 2010,
-                };
-            },
-            actor: async (query: any, context: any) => {
-                expect(query.id).toBe("5678");
-
-                return {
-                    name: "Leonardo Dicaprio",
-                    born: 1974,
-                };
+            query: {
+                movie: async (query: any, context: any) => {
+                    expect(query.id).toBe("1234");
+    
+                    return {
+                        name: "Inception",
+                        year: 2010,
+                    };
+                },
+                actor: async (query: any, context: any) => {
+                    expect(query.id).toBe("5678");
+    
+                    return {
+                        name: "Leonardo Dicaprio",
+                        born: 1974,
+                    };
+                },
             },
         };
 
