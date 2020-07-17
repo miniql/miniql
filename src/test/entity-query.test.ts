@@ -6,13 +6,13 @@ describe("entity query", () => {
 
         const query = {
             movie: {
-                name: "Inception",
+                id: "1234",
             },
         };
 
         const root = {
             movie: async (query: any, context: any) => {
-                expect(query.name).toBe("Inception");
+                expect(query.id).toBe("1234");
 
                 return {
                     name: "Inception",
@@ -34,16 +34,16 @@ describe("entity query", () => {
 
         const query = {
             movie: {
-                name: "Inception",
+                id: "1234",
             },
             actor: {
-                name: "Leonardo Dicaprio",
+                id: "5678",
             },
         };
 
         const root = {
             movie: async (query: any, context: any) => {
-                expect(query.name).toBe("Inception");
+                expect(query.id).toBe("1234");
 
                 return {
                     name: "Inception",
@@ -51,7 +51,7 @@ describe("entity query", () => {
                 };
             },
             actor: async (query: any, context: any) => {
-                expect(query.name).toBe("Leonardo Dicaprio");
+                expect(query.id).toBe("5678");
 
                 return {
                     name: "Leonardo Dicaprio",

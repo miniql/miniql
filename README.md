@@ -30,9 +30,12 @@ Follow the developer on Twitter for updates: [@ashleydavis75](https://twitter.co
 
 - Minimal schema is required - schema is optional to make relationships work.
 - If no specifc fields are requests for an entity, all fields are returned.
+- "Query" is passed through to the resolver. 
+    - You can implement your own pagination and entity search using this.
+    - You can also implement restricted fields.
 
 
 ## TODO
 
 - Authentication / authorization.
-- Restrict returned fields.
+- Updates and mutations.
