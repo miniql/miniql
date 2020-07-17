@@ -39,7 +39,9 @@
         "url": "https://github.com/ashleydavis/miniql/issues"
     },
     "homepage": "https://github.com/ashleydavis/miniql#readme",
-    "dependencies": {},
+    "dependencies": {
+        "typy": "^3.3.0"
+    },
     "devDependencies": {
         "@types/jest": "^26.0.4",
         "@types/node": "14.0.13",
