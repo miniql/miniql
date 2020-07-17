@@ -39,3 +39,4 @@ Follow the developer on Twitter for updates: [@ashleydavis75](https://twitter.co
 
 - Authentication / authorization.
 - Updates and mutations.
+- Nested entity resolution.
