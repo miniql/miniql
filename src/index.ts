@@ -38,27 +38,27 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
                     throw new Error("Unexpected lookup descriptor: " + JSON.stringify(lookup, null, 4)); //todo: test me.
                 }
 
-                let nestedEntityQuery: any;
+                let nestedEntityId: any;
                 if (nestedQueryFieldName) {
-                    nestedEntityQuery = output[entityKey][nestedQueryFieldName]; //TODO: Error check the desc.
+                    nestedEntityId = output[entityKey][nestedQueryFieldName]; //TODO: Error check the desc.
                 }
                 else {
                     const mapFnName = `${entityKey}=>${nestedEntityKey}`;
                     const mapFn: (query: any, context: any) => any = typeRoot[mapFnName]; //todo: Default to fn in root. Test for undefined fn.
-                    nestedEntityQuery = await mapFn(subQuery, context);
+                    nestedEntityId = await mapFn(subQuery, context);
                 }
 
                 let nestedEntity: any;
-                if (t(nestedEntityQuery).isArray) {
+                if (t(nestedEntityId).isArray) {
                     nestedEntity = await Promise.all(
-                        nestedEntityQuery.map(
-                            (singleNestedEntityQuery: any) => 
-                                lookupEntity(nestedEntityKey, singleNestedEntityQuery, root, context)
+                        nestedEntityId.map(
+                            (entityId: any) => 
+                                lookupEntity(nestedEntityKey, entityId, root, context)
                         )
                     );
                 }
                 else {
-                    nestedEntity = await lookupEntity(nestedEntityKey, nestedEntityQuery, root, context); //TODO: Do these in parallel.
+                    nestedEntity = await lookupEntity(nestedEntityKey, nestedEntityId, root, context); //TODO: Do these in parallel.
                 }
 
                 if (nestedQueryFieldName) {
@@ -78,11 +78,13 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
 //
 // Look up an entity by id.
 //
-export async function lookupEntity(entityKey: string, nestedEntityQuery: any, root: any, context: any) {
-    const query: any = {
+export async function lookupEntity(entityKey: string, nestedEntityId: any, root: any, context: any) {
+    const nextedQuery: any = {
         type: "query",
     };
-    query[entityKey] = nestedEntityQuery;
-    const nestedResult = await miniql(query, root, context); //TODO: Do these in parallel.
+    nextedQuery[entityKey] = {
+        id: nestedEntityId,
+    };
+    const nestedResult = await miniql(nextedQuery, root, context); //TODO: Do these in parallel.
     return nestedResult[entityKey];
 }

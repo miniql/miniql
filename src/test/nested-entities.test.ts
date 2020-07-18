@@ -22,7 +22,7 @@ describe("nested entities", () => {
                         id: "1234",
                         name: "Minority Report",
                         year: 2002,
-                        director: { id: "5678", },
+                        director: "5678",
                     };
                 },
     
@@ -71,7 +71,7 @@ describe("nested entities", () => {
                         id: "1234",
                         name: "Minority Report",
                         year: 2002,
-                        directorId: { id: "5678", },
+                        directorId: "5678",
                     };
                 },
     
@@ -121,8 +121,8 @@ describe("nested entities", () => {
                         name: "Minority Report",
                         year: 2002,
                         actor: [
-                            { id: "5678" },
-                            { id: "5679" },
+                            "5678",
+                            "5679",
                         ],
                     };
                 },
@@ -191,8 +191,8 @@ describe("nested entities", () => {
                         name: "Minority Report",
                         year: 2002,
                         actorIds: [
-                            { id: "5678" },
-                            { id: "5679" },
+                            "5678",
+                            "5679",
                         ],
                     };
                 },
@@ -257,12 +257,8 @@ describe("nested entities", () => {
                     expect(query.id).toBe("1234");
 
                     return [
-                        {
-                            id: "5678",
-                        },
-                        {
-                            id: "5679",
-                        },
+                        "5678",
+                        "5679",
                     ];
                 },
 
