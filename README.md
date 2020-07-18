@@ -32,9 +32,11 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - To avoid having many separate REST APIs.
 - To be able to retreive aggregate and optimized data to the front end.
 - To be able to easily explore your data.
+- To not imposed unececssary structure or rules on your data!
 
 ## Features
 
+- Decouples the query engine from entity resolution.
 - Follows relationships and resolves nested entities.
 - There is no schema, must like MongoDB.
 - The "query" is passed through to the resolver, so in your resolvers you are free to implement:
