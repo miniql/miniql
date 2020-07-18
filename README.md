@@ -35,7 +35,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
 
 ## Features
 
-- Follows relationships and resolved nested entities.
+- Follows relationships and resolves nested entities.
 - There is no schema, must like MongoDB.
 - The "query" is passed through to the resolver, so in your resolvers you are free to implement:
     - pagination
@@ -52,11 +52,14 @@ GraphQL is awesome, but sometimes the following can be annoying...
 
 ## TODO
 
+- Add a configurable MongoDB resolver.
+- Add a configurable JSON file resolver.
 - Caching and aggregation (wishlist)
 - Authentication / authorization.
 - Updates and mutations.
     "type": "update",
         This is very close! But not tested.
-- Renames / aliases (this is done, but just for looku ps).
+- Renames / aliases (this is done, but just for lookups).
 - Hooks - be notifed when particular entities/fields have been updated.
-- Do relationships between a separate table.
+- Do relationships specified in a separate table.
+- Reverse relationships. Get director entity and lookup all their movies.
