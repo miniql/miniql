@@ -60,3 +60,4 @@ typings/
 build/
 *.bak
 todo.txt
+*.orig
