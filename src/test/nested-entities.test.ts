@@ -51,6 +51,46 @@ describe("nested entities", () => {
         });
     });
 
+    it("error when an unsupport lookup type is used", async ()  => {
+
+        const query = {
+            movie: {
+                id: "1234",
+                lookup: {
+                    director: "--string-is-a-bad-lookup-type--",
+                },
+            },
+        };
+
+        const root = {
+            query: {
+                movie: async (query: any, context: any) => {
+                    expect(query.id).toBe("1234");
+    
+                    return {
+                        id: "1234",
+                        name: "Minority Report",
+                        year: 2002,
+                        director: "5678",
+                    };
+                },
+    
+                director: async (query: any, context: any) => {
+                    expect(query.id).toBe("5678");
+    
+                    return {
+                        id: "5678",
+                        name: "Steven Spielberg",
+                    };
+                },
+            },
+        };
+
+        await expect(miniql(query, root, {}))
+            .rejects
+            .toThrow();
+    });
+
     it("can get one nested entity with id from field", async ()  => {
 
         const query = {

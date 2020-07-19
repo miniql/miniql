@@ -34,7 +34,7 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
                 let nestedQueryFieldName: string | undefined;
                 let outputFieldName: string;
                 if (t(lookup).isObject) {
-                    nestedQueryFieldName = lookup.from; //todo: Assert that from is a string! (or undefined.)
+                    nestedQueryFieldName = lookup.from;
                     outputFieldName = lookup.as || nestedEntityKey;
                 }
                 else if (lookup === true) {
@@ -42,7 +42,7 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
                     outputFieldName = nestedEntityKey;
                 }
                 else {
-                    throw new Error("Unexpected lookup descriptor: " + JSON.stringify(lookup, null, 4)); //todo: test me.
+                    throw new Error(`Unsupported type for "lookup" field: ${typeof(lookup)}.`);
                 }
 
                 let nestedEntityId: any;
