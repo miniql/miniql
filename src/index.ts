@@ -8,7 +8,10 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
 
     const output: any = {};
     const opName = query.op || "query"
-    const operation = root[opName]; //TODO: Test error for op not found.
+    const operation = root[opName];
+    if (!operation) {
+        throw new Error(`Operation ${opName} is not supported.`);
+    }
 
     for (const entityKey of Object.keys(query)) {
         if (entityKey === "op") {

@@ -53,6 +53,24 @@ describe("entity query", () => {
             .toThrow();
     });
 
+    it("error when operation is not found", async ()  => {
+
+        const query = {
+            op: "query",
+            movie: {
+                id: "1234",
+            },
+        };
+
+        const root = {
+            // No operation supported.
+        };
+
+        await expect(miniql(query, root, {}))
+            .rejects
+            .toThrow();
+    });
+
     it("can retreive multiple entities", async ()  => {
 
         const query = {
