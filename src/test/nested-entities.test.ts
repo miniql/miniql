@@ -351,4 +351,65 @@ describe("nested entities", () => {
             },
         });
     });    
+
+    it("error when entity map is not found", async ()  => {
+
+        const query = {
+            movie: {
+                id: "1234",
+                lookup: {
+                    actor: {
+                        as: "actors",
+                    },
+                },
+            },
+        };
+
+        const root = {
+            query: {
+                // There is no entity map function!
+                //
+                // "movie=>actor": async (query: any, context: any) => {
+                //     expect(query.id).toBe("1234");
+
+                //     return [
+                //         "5678",
+                //         "5679",
+                //     ];
+                // },
+
+                movie: async (query: any, context: any) => {
+                    expect(query.id).toBe("1234");
+    
+                    return {
+                        id: "1234",
+                        name: "Minority Report",
+                        year: 2002,
+                    };
+                },
+    
+                actor: async (query: any, context: any) => {
+                    if (query.id === "5678") {
+                        return {
+                            id: "5678",
+                            name: "Tom Cruise",
+                        };
+                    }
+                    else if (query.id === "5679") {
+                        return {
+                            id: "5679",
+                            name: "Samantha Morton",
+                        };
+                    }
+                    else {
+                        throw new Error("Unexpected id: " + query.id);
+                    }    
+                },
+            },
+        };
+
+        await expect(miniql(query, root, {}))
+            .rejects
+            .toThrow();
+    });
 });

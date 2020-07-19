@@ -51,7 +51,10 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
                 }
                 else {
                     const mapFnName = `${entityKey}=>${nestedEntityKey}`;
-                    const mapFn: (query: any, context: any) => any = operation[mapFnName]; //todo: Default to fn in root. Test for undefined fn.
+                    const mapFn: (query: any, context: any) => any | undefined = operation[mapFnName];
+                    if (!mapFn) {
+                        throw new Error(`Failed to find entity mapping function ${mapFnName} for operation ${opName}`);
+                    }
                     nestedEntityId = await mapFn(subQuery, context);
                 }
 
