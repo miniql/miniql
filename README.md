@@ -39,8 +39,13 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - Decouples the query engine from entity resolution.
 - No type system - use your programming language for that! (e.g. TypeScript)
 - Follows relationships and resolves nested entities.
+    - You control how the relationships in your data are defined.
 - There is no schema, must like MongoDB.
-- The "query" is passed through to the resolver, so in your resolvers you are free to implement:
+- Different types of operations.
+    - The MiniQL convertion is use "query" or "update" operations.
+    - But you can use whatever names you like.
+    - You can have any other operations as well with whatever names you like.
+- The "query" or "update" is passed through to the resolver, so in your resolvers you are free to implement:
     - pagination
     - total entities
     - entity search and filtering
@@ -52,7 +57,6 @@ GraphQL is awesome, but sometimes the following can be annoying...
     - Whitelisted fields
     - All data, partial data, whatever you want!
 
-
 ## TODO
 
 - Data versioning.
@@ -60,10 +64,6 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - Add a configurable JSON file resolver.
 - Caching and aggregation (wishlist)
 - Authentication / authorization.
-- Updates and mutations.
-    "type": "update",
-        This is very close! But not tested.
 - Renames / aliases (this is done, but just for lookups).
 - Hooks - be notifed when particular entities/fields have been updated.
-- Do relationships specified in a separate table.
 - Reverse relationships. Get director entity and lookup all their movies.
