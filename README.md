@@ -57,7 +57,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
     - Whitelisted fields
     - All data, partial data, whatever you want!
 
-## TODO
+## Future
 
 - Data versioning.
 - Add a configurable MongoDB resolver.
@@ -67,3 +67,4 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - Renames / aliases (this is done, but just for lookups).
 - Hooks - be notifed when particular entities/fields have been updated.
 - Reverse relationships. Get director entity and lookup all their movies.
+- Optimisation to do queries in parallel.
