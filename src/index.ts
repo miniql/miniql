@@ -7,14 +7,18 @@ import { tupleExpression } from "@babel/types";
 export async function miniql(query: any, root: any, context: any): Promise<any> {
 
     const output: any = {};
-    const operation = root[query.op || "query"]; 
+    const opName = query.op || "query"
+    const operation = root[opName]; //TODO: Test error for op not found.
 
     for (const entityKey of Object.keys(query)) {
         if (entityKey === "op") {
             continue;
         }
 
-        const resolver = operation[entityKey]; // Todo: check for missing resolver. todo: Should also check in the root.
+        const resolver = operation[entityKey];
+        if (!resolver) {
+            throw new Error(`Failed to find resolver for operation ${opName} on enity ${entityKey}.`);
+        }
         const subQuery = query[entityKey];
         output[entityKey] = await resolver(subQuery, context); //TODO: Do these in parallel.
 

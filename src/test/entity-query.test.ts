@@ -33,6 +33,26 @@ describe("entity query", () => {
         });
     });
 
+    it("error when resolver is not found", async ()  => {
+
+        const query = {
+            op: "query",
+            movie: {
+                id: "1234",
+            },
+        };
+
+        const root = {
+            query: {
+                // No resolver. 
+            },
+        };
+
+        await expect(miniql(query, root, {}))
+            .rejects
+            .toThrow();
+    });
+
     it("can retreive multiple entities", async ()  => {
 
         const query = {
