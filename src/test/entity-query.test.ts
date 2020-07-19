@@ -5,7 +5,7 @@ describe("entity query", () => {
     it("can retreive entity", async ()  => {
 
         const query = {
-            type: "query",
+            op: "query",
             movie: {
                 id: "1234",
             },

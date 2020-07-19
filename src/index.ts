@@ -7,14 +7,14 @@ import { tupleExpression } from "@babel/types";
 export async function miniql(query: any, root: any, context: any): Promise<any> {
 
     const output: any = {};
-    const typeRoot = root[query.type || "query"]; 
+    const operation = root[query.op || "query"]; 
 
     for (const entityKey of Object.keys(query)) {
-        if (entityKey === "type") {
+        if (entityKey === "op") {
             continue;
         }
 
-        const resolver = typeRoot[entityKey]; // Todo: check for missing resolver. todo: Should also check in the root.
+        const resolver = operation[entityKey]; // Todo: check for missing resolver. todo: Should also check in the root.
         const subQuery = query[entityKey];
         output[entityKey] = await resolver(subQuery, context); //TODO: Do these in parallel.
 
@@ -24,7 +24,7 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
             //
             for (const nestedEntityKey of Object.keys(subQuery.lookup)) {
                 const lookup = subQuery.lookup[nestedEntityKey];
-                let nestedQueryFieldName: string | undefined = undefined;
+                let nestedQueryFieldName: string | undefined;
                 let outputFieldName: string;
                 if (t(lookup).isObject) {
                     nestedQueryFieldName = lookup.from; //todo: Assert that from is a string! (or undefined.)
@@ -44,7 +44,7 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
                 }
                 else {
                     const mapFnName = `${entityKey}=>${nestedEntityKey}`;
-                    const mapFn: (query: any, context: any) => any = typeRoot[mapFnName]; //todo: Default to fn in root. Test for undefined fn.
+                    const mapFn: (query: any, context: any) => any = operation[mapFnName]; //todo: Default to fn in root. Test for undefined fn.
                     nestedEntityId = await mapFn(subQuery, context);
                 }
 
@@ -80,7 +80,7 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
 //
 export async function lookupEntity(entityKey: string, nestedEntityId: any, root: any, context: any) {
     const nextedQuery: any = {
-        type: "query",
+        op: "query",
     };
     nextedQuery[entityKey] = {
         id: nestedEntityId,

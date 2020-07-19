@@ -37,6 +37,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
 ## Features
 
 - Decouples the query engine from entity resolution.
+- No type system - use your programming language for that! (e.g. TypeScript)
 - Follows relationships and resolves nested entities.
 - There is no schema, must like MongoDB.
 - The "query" is passed through to the resolver, so in your resolvers you are free to implement:
@@ -54,6 +55,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
 
 ## TODO
 
+- Data versioning.
 - Add a configurable MongoDB resolver.
 - Add a configurable JSON file resolver.
 - Caching and aggregation (wishlist)
