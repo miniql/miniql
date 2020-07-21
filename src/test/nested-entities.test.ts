@@ -280,7 +280,7 @@ describe("nested entities", () => {
     it("can retrieve multiple entiites each with a single nested entity", async ()  => {
 
         const query = {
-            movies: {
+            movie: {
                 lookup: {
                     director: {
                         from: "directorId",
@@ -292,7 +292,7 @@ describe("nested entities", () => {
 
         const root = {
             query: {
-                movies: async (query: any, context: any) => {
+                movie: async (query: any, context: any) => {
                     return [
                         {
                             name: "Minority Report",
@@ -329,7 +329,7 @@ describe("nested entities", () => {
 
         const result = await miniql(query, root, {});
         expect(result).toEqual({
-            movies: [
+            movie: [
                 {
                     name: "Minority Report",
                     year: 2002,
@@ -353,7 +353,7 @@ describe("nested entities", () => {
     it("can retrieve multiple entiites each with multiple nested entities", async ()  => {
 
         const query = {
-            movies: {
+            movie: {
                 lookup: {
                     actor: {
                         from: "actorIds",
@@ -365,7 +365,7 @@ describe("nested entities", () => {
 
         const root = {
             query: {
-                movies: async (query: any, context: any) => {
+                movie: async (query: any, context: any) => {
                     return [
                         {
                             name: "Minority Report",
@@ -413,7 +413,7 @@ describe("nested entities", () => {
 
         const result = await miniql(query, root, {});
         expect(result).toEqual({
-            movies: [
+            movie: [
                 {
                     name: "Minority Report",
                     year: 2002,

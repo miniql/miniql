@@ -5,7 +5,7 @@ describe("entity search", () => {
     it("can get entities", async ()  => {
 
         const query = {
-            movies: {
+            movie: {
                 skip: 0, // Simulates pagination.
                 limit: 2,
                 search: {
@@ -23,7 +23,7 @@ describe("entity search", () => {
 
         const root = {
             query: {
-                movies: async (query: any, context: any) => {
+                movie: async (query: any, context: any) => {
                     expect(query.skip).toBe(0);
                     expect(query.limit).toBe(2);
                     expect(query.search.year).toBe(2002);
@@ -50,7 +50,7 @@ describe("entity search", () => {
 
         const result = await miniql(query, root, {});
         expect(result).toEqual({
-            movies: {
+            movie: {
                 total: 20,
                 results: [
                     {
@@ -65,5 +65,4 @@ describe("entity search", () => {
             },
         });
     });
-
 });
