@@ -344,7 +344,7 @@ describe("nested entities", () => {
                     director: {
                         id: "5678",
                         name: "Doug Liman",
-                    },                        
+                    },
                 },
             ],
         });
@@ -442,7 +442,7 @@ describe("nested entities", () => {
         });
     });    
 
-    it("can retrieve multiple nested entities with id map", async ()  => {
+    it("can retrieve multiple nested entities using entity map fn", async ()  => {
 
         const query = {
             movie: {
@@ -459,7 +459,7 @@ describe("nested entities", () => {
             query: {
                 // Find the actors for a particular movie.
                 "movie=>actor": async (query: any, context: any) => {
-                    expect(query.id).toBe("1234");
+                    expect(query.entity.id).toBe("1234");
 
                     return [
                         "5678",
@@ -577,4 +577,110 @@ describe("nested entities", () => {
             .rejects
             .toThrow();
     });
+
+    it("can retrieve multiple entities with multipled nested entities using entity map fn", async ()  => {
+
+        const query = {
+            movie: {
+                lookup: {
+                    actor: {
+                        as: "actors",
+                    },
+                },
+            },
+        };
+
+        const root = {
+            query: {
+                // Find the actors for a particular movie.
+                "movie=>actor": async (query: any, context: any) => {
+                    if (query.entity.id === "1234") {
+                        return [
+                            "2345",
+                            "3456",
+                        ];
+                    }
+                    else if (query.entity.id === "5678") {
+                        return [
+                            "4567",
+                        ];
+                    }
+                    else {
+                        throw new Error(`Unexpected movie id ${query.entity.id}.`);
+                    }
+                },
+
+                movie: async (query: any, context: any) => {
+                    return [
+                        {
+                            id: "1234",
+                            name: "Minority Report",
+                            year: 2002,
+                        },
+                        {
+                            id: "5678",
+                            name: "The Bourne Identity",
+                            year: 2002,
+                        },
+                    ];
+                },
+    
+                actor: async (query: any, context: any) => {
+                    if (query.id === "2345") {
+                        return {
+                            id: "2345",
+                            name: "Tom Cruise",
+                        };
+                    }
+                    else if (query.id === "3456") {
+                        return {
+                            id: "3456",
+                            name: "Samantha Morton",
+                        };
+                    }
+                    else if (query.id === "4567") {
+                        return {
+                            id: "4567",
+                            name: "Matt Daemon",
+                        };
+                    }
+                    else {
+                        throw new Error("Unexpected actor id: " + query.id);
+                    }    
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(result).toEqual({
+            movie: [
+                {
+                    id: "1234",
+                    name: "Minority Report",
+                    year: 2002,
+                    actors: [
+                        {
+                            id: "2345",
+                            name: "Tom Cruise",
+                        },
+                        {
+                            id: "3456",
+                            name: "Samantha Morton",
+                        },
+                    ],
+                },
+                {
+                    id: "5678",
+                    name: "The Bourne Identity",
+                    year: 2002,
+                    actors: [
+                        {
+                            id: "4567",
+                            name: "Matt Daemon",
+                        },
+                    ],
+                },
+            ],
+        });
+    });    
 });

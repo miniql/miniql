@@ -47,13 +47,13 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
 
                 if (t(entity).isArray) {
                     await Promise.all(
-                        entity.map((singleEntity: any) => 
-                            resolveEntity(nestedQueryFieldName, outputFieldName, singleEntity, entityKey, nestedEntityKey, operation, opName, subQuery, context, root)
-                        )
+                        entity.map((singleEntity: any) => {
+                            return resolveEntity(nestedQueryFieldName, outputFieldName, singleEntity, entityKey, nestedEntityKey, operation, opName, context, root)
+                        })
                     );
                 }
                 else {
-                    await resolveEntity(nestedQueryFieldName, outputFieldName, entity, entityKey, nestedEntityKey, operation, opName, subQuery, context, root);
+                    await resolveEntity(nestedQueryFieldName, outputFieldName, entity, entityKey, nestedEntityKey, operation, opName, context, root);
                 }
             }
         }
@@ -65,7 +65,7 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
 //
 // Resolve a single entity.
 //
-async function resolveEntity(nestedQueryFieldName: string | undefined, outputFieldName: string, entity: any, entityKey: string, nestedEntityKey: string, operation: any, opName: any, subQuery: any, context: any, root: any): Promise<void> {
+async function resolveEntity(nestedQueryFieldName: string | undefined, outputFieldName: string, entity: any, entityKey: string, nestedEntityKey: string, operation: any, opName: any, context: any, root: any): Promise<void> {
     let nestedEntityId: any;
     if (nestedQueryFieldName) {
         nestedEntityId = entity[nestedQueryFieldName]; //TODO: Error check the desc.
@@ -76,7 +76,7 @@ async function resolveEntity(nestedQueryFieldName: string | undefined, outputFie
         if (!mapFn) {
             throw new Error(`Failed to find entity mapping function ${mapFnName} for operation ${opName}`);
         }
-        nestedEntityId = await mapFn(subQuery, context);
+        nestedEntityId = await mapFn({ entity: entity }, context);
     }
 
     let nestedEntity: any;
