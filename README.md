@@ -33,6 +33,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - To be able to retreive aggregate and optimized data to the front end.
 - To be able to easily explore your data.
 - To not imposed unececssary structure or rules on your data!
+- Make the most of the backend capabilities (eg search and filtering capability in MongoDB).
 
 ## Features
 
@@ -68,3 +69,5 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - Hooks - be notifed when particular entities/fields have been updated.
 - Reverse relationships. Get director entity and lookup all their movies.
 - Optimisation to do queries in parallel.
+- Built-in filtering?
+- How to retreieve a count after search/filtering is applied.
