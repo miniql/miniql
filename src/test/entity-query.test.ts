@@ -71,7 +71,7 @@ describe("entity query", () => {
             .toThrow();
     });
 
-    it("can retreive multiple entities", async ()  => {
+    it("can retreive separate entities", async ()  => {
 
         const query = {
             movie: {

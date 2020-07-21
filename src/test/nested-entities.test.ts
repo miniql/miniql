@@ -277,6 +277,171 @@ describe("nested entities", () => {
         });
     });    
 
+    it("can retrieve multiple entiites each with a single nested entity", async ()  => {
+
+        const query = {
+            movies: {
+                lookup: {
+                    director: {
+                        from: "directorId",
+                        as: "director",
+                    },
+                },
+            },
+        };
+
+        const root = {
+            query: {
+                movies: async (query: any, context: any) => {
+                    return [
+                        {
+                            name: "Minority Report",
+                            year: 2002,
+                            directorId: "1234",
+                        },
+                        {
+                            name: "The Bourne Identity",
+                            year: 2002,
+                            directorId: "5678",
+                        },
+                    ];
+                },
+    
+                director: async (query: any, context: any) => {
+                    if (query.id === "1234") {
+                        return {
+                            id: "1234",
+                            name: "Steven Spielberg",
+                        };
+                    }
+                    else if (query.id === "5678") {
+                        return {
+                            id: "5678",
+                            name: "Doug Liman",
+                        };
+                    }
+                    else {
+                        throw new Error("Unexpected id: " + query.id);
+                    }    
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(result).toEqual({
+            movies: [
+                {
+                    name: "Minority Report",
+                    year: 2002,
+                    director: {
+                        id: "1234",
+                        name: "Steven Spielberg",
+                    },
+                },
+                {
+                    name: "The Bourne Identity",
+                    year: 2002,
+                    director: {
+                        id: "5678",
+                        name: "Doug Liman",
+                    },                        
+                },
+            ],
+        });
+    });    
+
+    it("can retrieve multiple entiites each with multiple nested entities", async ()  => {
+
+        const query = {
+            movies: {
+                lookup: {
+                    actor: {
+                        from: "actorIds",
+                        as: "actors",
+                    },
+                },
+            },
+        };
+
+        const root = {
+            query: {
+                movies: async (query: any, context: any) => {
+                    return [
+                        {
+                            name: "Minority Report",
+                            year: 2002,
+                            actorIds: [
+                                "1234",
+                                "5678",
+                            ],
+                        },
+                        {
+                            name: "The Bourne Identity",
+                            year: 2002,
+                            actorIds: [
+                                "9123",
+                            ],
+                        },
+                    ];
+                },
+    
+                actor: async (query: any, context: any) => {
+                    if (query.id === "1234") {
+                        return {
+                            id: "1234",
+                            name: "Tom Cruise",
+                        };
+                    }
+                    else if (query.id === "5678") {
+                        return {
+                            id: "5678",
+                            name: "Samantha Morton",
+                        };
+                    }
+                    else if (query.id === "9123") {
+                        return {
+                            id: "9123",
+                            name: "Matt Daemon",
+                        };
+                    }
+                    else {
+                        throw new Error("Unexpected id: " + query.id);
+                    }    
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(result).toEqual({
+            movies: [
+                {
+                    name: "Minority Report",
+                    year: 2002,
+                    actors: [
+                        {
+                            id: "1234",
+                            name: "Tom Cruise",
+                        },
+                        {
+                            id: "5678",
+                            name: "Samantha Morton",
+                        },
+                    ],
+                },
+                {
+                    name: "The Bourne Identity",
+                    year: 2002,
+                    actors: [
+                        {
+                            id: "9123",
+                            name: "Matt Daemon",
+                        },
+                    ],
+                },
+            ],
+        });
+    });    
+
     it("can retrieve multiple nested entities with id map", async ()  => {
 
         const query = {

@@ -1,5 +1,4 @@
 import { t } from "typy";
-import { tupleExpression } from "@babel/types";
 
 //
 // Execute a query.
@@ -23,7 +22,8 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
             throw new Error(`Failed to find resolver for operation ${opName} on enity ${entityKey}.`);
         }
         const subQuery = query[entityKey];
-        output[entityKey] = await resolver(subQuery, context); //TODO: Do these in parallel.
+        const entity = await resolver(subQuery, context); //TODO: Do these in parallel.
+        output[entityKey] = entity;
 
         if (subQuery.lookup) {
             //
@@ -45,44 +45,55 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
                     throw new Error(`Unsupported type for "lookup" field: ${typeof(lookup)}.`);
                 }
 
-                let nestedEntityId: any;
-                if (nestedQueryFieldName) {
-                    nestedEntityId = output[entityKey][nestedQueryFieldName]; //TODO: Error check the desc.
-                }
-                else {
-                    const mapFnName = `${entityKey}=>${nestedEntityKey}`;
-                    const mapFn: (query: any, context: any) => any | undefined = operation[mapFnName];
-                    if (!mapFn) {
-                        throw new Error(`Failed to find entity mapping function ${mapFnName} for operation ${opName}`);
-                    }
-                    nestedEntityId = await mapFn(subQuery, context);
-                }
-
-                let nestedEntity: any;
-                if (t(nestedEntityId).isArray) {
-                    nestedEntity = await Promise.all(
-                        nestedEntityId.map(
-                            (entityId: any) => 
-                                lookupEntity(nestedEntityKey, entityId, root, context)
+                if (t(entity).isArray) {
+                    await Promise.all(
+                        entity.map((singleEntity: any) => 
+                            resolveEntity(nestedQueryFieldName, outputFieldName, singleEntity, entityKey, nestedEntityKey, operation, opName, subQuery, context, root)
                         )
                     );
                 }
                 else {
-                    nestedEntity = await lookupEntity(nestedEntityKey, nestedEntityId, root, context); //TODO: Do these in parallel.
+                    await resolveEntity(nestedQueryFieldName, outputFieldName, entity, entityKey, nestedEntityKey, operation, opName, subQuery, context, root);
                 }
-
-                if (nestedQueryFieldName) {
-                    if (outputFieldName !== nestedQueryFieldName) {
-                        delete output[entityKey][nestedQueryFieldName];
-                    }
-                }
-
-                output[entityKey][outputFieldName] = nestedEntity;
             }
         }
     }
 
     return output;
+}
+
+//
+// Resolve a single entity.
+//
+async function resolveEntity(nestedQueryFieldName: string | undefined, outputFieldName: string, entity: any, entityKey: string, nestedEntityKey: string, operation: any, opName: any, subQuery: any, context: any, root: any): Promise<void> {
+    let nestedEntityId: any;
+    if (nestedQueryFieldName) {
+        nestedEntityId = entity[nestedQueryFieldName]; //TODO: Error check the desc.
+    }
+    else {
+        const mapFnName = `${entityKey}=>${nestedEntityKey}`;
+        const mapFn: (query: any, context: any) => any | undefined = operation[mapFnName];
+        if (!mapFn) {
+            throw new Error(`Failed to find entity mapping function ${mapFnName} for operation ${opName}`);
+        }
+        nestedEntityId = await mapFn(subQuery, context);
+    }
+
+    let nestedEntity: any;
+    if (t(nestedEntityId).isArray) {
+        nestedEntity = await Promise.all(nestedEntityId.map((entityId: any) => lookupEntity(nestedEntityKey, entityId, root, context)));
+    }
+    else {
+        nestedEntity = await lookupEntity(nestedEntityKey, nestedEntityId, root, context); //TODO: Do these in parallel.
+    }
+
+    if (nestedQueryFieldName) {
+        if (outputFieldName !== nestedQueryFieldName) {
+            delete entity[nestedQueryFieldName];
+        }
+    }
+
+    entity[outputFieldName] = nestedEntity;
 }
 
 //
