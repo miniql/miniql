@@ -30,15 +30,15 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://ashleydavis@github.com/ashleydavis/miniql.git"
+        "url": "git+https://miniql@github.com/miniql/miniql.git"
     },
     "keywords": [],
     "author": "ashley@codecapers.com.au",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/ashleydavis/miniql/issues"
+        "url": "https://github.com/miniql/miniql/issues"
     },
-    "homepage": "https://github.com/ashleydavis/miniql#readme",
+    "homepage": "https://github.com/miniql/miniql#readme",
     "dependencies": {
         "typy": "^3.3.0"
     },
