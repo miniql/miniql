@@ -31,18 +31,47 @@ describe("entity search", () => {
                     expect(query.include.year).toBe(true);
                     expect(query.exclude.director).toBe(true);
     
+                    return [
+                        {
+                            name: "Minority Report",
+                            year: 2002,
+                        },
+                        {
+                            name: "The Bourne Identity",
+                            year: 2002,
+                        },
+                    ];
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(result).toEqual({
+            movie: [
+                {
+                    name: "Minority Report",
+                    year: 2002,
+                },
+                {
+                    name: "The Bourne Identity",
+                    year: 2002,
+                },
+            ],
+        });
+    });
+
+    it("can get total entities returned from resolver", async ()  => {
+
+        const query = {
+            movieInfo: {
+            },
+        };
+
+        const root = {
+            query: {
+                movieInfo: async (query: any, context: any) => {
                     return {
-                        total: 20,
-                        results: [
-                            {
-                                name: "Minority Report",
-                                year: 2002,
-                            },
-                            {
-                                name: "The Bourne Identity",
-                                year: 2002,
-                            },
-                        ],
+                        total: 202, // Total number of movies.
                     };
                 },
             },
@@ -50,18 +79,8 @@ describe("entity search", () => {
 
         const result = await miniql(query, root, {});
         expect(result).toEqual({
-            movie: {
-                total: 20,
-                results: [
-                    {
-                        name: "Minority Report",
-                        year: 2002,
-                },
-                    {
-                        name: "The Bourne Identity",
-                        year: 2002,
-                    },
-                ],
+            movieInfo: {
+                total: 202,
             },
         });
     });
