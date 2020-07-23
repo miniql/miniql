@@ -5,7 +5,7 @@
     "main": "build/index.js",
     "types": "build/index.d.ts",
     "scripts": {
-        "start": "node ./build/cli.js",
+        "start": "node ./build/index.js",
         "start:dev": "nodemon",
         "c": "npm run clean",
         "clean": "rm -rf build/*",
@@ -24,9 +24,6 @@
         "test": "jest",
         "tw": "npm run test:watch",
         "test:watch": "jest --watchAll"
-    },
-    "bin": {
-        "miniql-cli": "./bin/cli"
     },
     "repository": {
         "type": "git",
