@@ -22,7 +22,7 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
             throw new Error(`Failed to find resolver for operation ${opName} on enity ${entityKey}.`);
         }
         const subQuery = query[entityKey];
-        const entity = await resolver(subQuery, context); //TODO: Do these in parallel.
+        const entity = await resolver(subQuery.args || {}, context); //TODO: Do these in parallel.
         output[entityKey] = entity;
 
         if (subQuery.lookup) {
@@ -104,7 +104,9 @@ export async function lookupEntity(entityKey: string, nestedEntityId: any, root:
         op: "query",
     };
     nextedQuery[entityKey] = {
-        id: nestedEntityId,
+        args: {
+            id: nestedEntityId,
+        },
     };
     const nestedResult = await miniql(nextedQuery, root, context); //TODO: Do these in parallel.
     return nestedResult[entityKey];

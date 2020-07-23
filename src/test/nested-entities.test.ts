@@ -6,7 +6,9 @@ describe("nested entities", () => {
 
         const query = {
             movie: {
-                id: "1234",
+                args: {
+                    id: "1234",
+                },
                 lookup: {
                     director: true,
                 },
@@ -15,8 +17,8 @@ describe("nested entities", () => {
 
         const root = {
             query: {
-                movie: async (query: any, context: any) => {
-                    expect(query.id).toBe("1234");
+                movie: async (args: any, context: any) => {
+                    expect(args.id).toBe("1234");
     
                     return {
                         id: "1234",
@@ -26,8 +28,8 @@ describe("nested entities", () => {
                     };
                 },
     
-                director: async (query: any, context: any) => {
-                    expect(query.id).toBe("5678");
+                director: async (args: any, context: any) => {
+                    expect(args.id).toBe("5678");
     
                     return {
                         id: "5678",
@@ -55,7 +57,9 @@ describe("nested entities", () => {
 
         const query = {
             movie: {
-                id: "1234",
+                args: {
+                    id: "1234",
+                },
                 lookup: {
                     director: "--string-is-a-bad-lookup-type--",
                 },
@@ -64,8 +68,8 @@ describe("nested entities", () => {
 
         const root = {
             query: {
-                movie: async (query: any, context: any) => {
-                    expect(query.id).toBe("1234");
+                movie: async (args: any, context: any) => {
+                    expect(args.id).toBe("1234");
     
                     return {
                         id: "1234",
@@ -75,8 +79,8 @@ describe("nested entities", () => {
                     };
                 },
     
-                director: async (query: any, context: any) => {
-                    expect(query.id).toBe("5678");
+                director: async (args: any, context: any) => {
+                    expect(args.id).toBe("5678");
     
                     return {
                         id: "5678",
@@ -95,7 +99,9 @@ describe("nested entities", () => {
 
         const query = {
             movie: {
-                id: "1234",
+                args: {
+                    id: "1234",
+                },
                 lookup: {
                     director: { from: "directorId", }, // Lookup director entity by directorId.
                 },
@@ -104,8 +110,8 @@ describe("nested entities", () => {
 
         const root = {
             query: {
-                movie: async (query: any, context: any) => {
-                    expect(query.id).toBe("1234");
+                movie: async (args: any, context: any) => {
+                    expect(args.id).toBe("1234");
     
                     return {
                         id: "1234",
@@ -115,8 +121,8 @@ describe("nested entities", () => {
                     };
                 },
     
-                director: async (query: any, context: any) => {
-                    expect(query.id).toBe("5678");
+                director: async (args: any, context: any) => {
+                    expect(args.id).toBe("5678");
     
                     return {
                         id: "5678",
@@ -144,7 +150,9 @@ describe("nested entities", () => {
 
         const query = {
             movie: {
-                id: "1234",
+                args: {
+                    id: "1234",
+                },
                 lookup: {
                     actor: true,
                 },
@@ -153,8 +161,8 @@ describe("nested entities", () => {
 
         const root = {
             query: {
-                movie: async (query: any, context: any) => {
-                    expect(query.id).toBe("1234");
+                movie: async (args: any, context: any) => {
+                    expect(args.id).toBe("1234");
     
                     return {
                         id: "1234",
@@ -167,21 +175,21 @@ describe("nested entities", () => {
                     };
                 },
     
-                actor: async (query: any, context: any) => {
-                    if (query.id === "5678") {
+                actor: async (args: any, context: any) => {
+                    if (args.id === "5678") {
                         return {
                             id: "5678",
                             name: "Tom Cruise",
                         };
                     }
-                    else if (query.id === "5679") {
+                    else if (args.id === "5679") {
                         return {
                             id: "5679",
                             name: "Samantha Morton",
                         };
                     }
                     else {
-                        throw new Error("Unexpected id: " + query.id);
+                        throw new Error("Unexpected id: " + args.id);
                     }    
                 },
             },
@@ -211,7 +219,9 @@ describe("nested entities", () => {
 
         const query = {
             movie: {
-                id: "1234",
+                args: {
+                    id: "1234",
+                },
                 lookup: {
                     actor: {
                         from: "actorIds",
@@ -223,8 +233,8 @@ describe("nested entities", () => {
 
         const root = {
             query: {
-                movie: async (query: any, context: any) => {
-                    expect(query.id).toBe("1234");
+                movie: async (args: any, context: any) => {
+                    expect(args.id).toBe("1234");
     
                     return {
                         id: "1234",
@@ -237,21 +247,21 @@ describe("nested entities", () => {
                     };
                 },
     
-                actor: async (query: any, context: any) => {
-                    if (query.id === "5678") {
+                actor: async (args: any, context: any) => {
+                    if (args.id === "5678") {
                         return {
                             id: "5678",
                             name: "Tom Cruise",
                         };
                     }
-                    else if (query.id === "5679") {
+                    else if (args.id === "5679") {
                         return {
                             id: "5679",
                             name: "Samantha Morton",
                         };
                     }
                     else {
-                        throw new Error("Unexpected id: " + query.id);
+                        throw new Error("Unexpected id: " + args.id);
                     }    
                 },
             },
@@ -292,7 +302,7 @@ describe("nested entities", () => {
 
         const root = {
             query: {
-                movie: async (query: any, context: any) => {
+                movie: async (args: any, context: any) => {
                     return [
                         {
                             name: "Minority Report",
@@ -307,21 +317,21 @@ describe("nested entities", () => {
                     ];
                 },
     
-                director: async (query: any, context: any) => {
-                    if (query.id === "1234") {
+                director: async (args: any, context: any) => {
+                    if (args.id === "1234") {
                         return {
                             id: "1234",
                             name: "Steven Spielberg",
                         };
                     }
-                    else if (query.id === "5678") {
+                    else if (args.id === "5678") {
                         return {
                             id: "5678",
                             name: "Doug Liman",
                         };
                     }
                     else {
-                        throw new Error("Unexpected id: " + query.id);
+                        throw new Error("Unexpected id: " + args.id);
                     }    
                 },
             },
@@ -365,7 +375,7 @@ describe("nested entities", () => {
 
         const root = {
             query: {
-                movie: async (query: any, context: any) => {
+                movie: async (args: any, context: any) => {
                     return [
                         {
                             name: "Minority Report",
@@ -385,27 +395,27 @@ describe("nested entities", () => {
                     ];
                 },
     
-                actor: async (query: any, context: any) => {
-                    if (query.id === "1234") {
+                actor: async (args: any, context: any) => {
+                    if (args.id === "1234") {
                         return {
                             id: "1234",
                             name: "Tom Cruise",
                         };
                     }
-                    else if (query.id === "5678") {
+                    else if (args.id === "5678") {
                         return {
                             id: "5678",
                             name: "Samantha Morton",
                         };
                     }
-                    else if (query.id === "9123") {
+                    else if (args.id === "9123") {
                         return {
                             id: "9123",
                             name: "Matt Daemon",
                         };
                     }
                     else {
-                        throw new Error("Unexpected id: " + query.id);
+                        throw new Error("Unexpected id: " + args.id);
                     }    
                 },
             },
@@ -446,7 +456,9 @@ describe("nested entities", () => {
 
         const query = {
             movie: {
-                id: "1234",
+                args: {
+                    id: "1234",
+                },
                 lookup: {
                     actor: {
                         as: "actors",
@@ -458,8 +470,8 @@ describe("nested entities", () => {
         const root = {
             query: {
                 // Find the actors for a particular movie.
-                "movie=>actor": async (query: any, context: any) => {
-                    expect(query.entity.id).toBe("1234");
+                "movie=>actor": async (args: any, context: any) => {
+                    expect(args.entity.id).toBe("1234");
 
                     return [
                         "5678",
@@ -467,8 +479,8 @@ describe("nested entities", () => {
                     ];
                 },
 
-                movie: async (query: any, context: any) => {
-                    expect(query.id).toBe("1234");
+                movie: async (args: any, context: any) => {
+                    expect(args.id).toBe("1234");
     
                     return {
                         id: "1234",
@@ -477,21 +489,21 @@ describe("nested entities", () => {
                     };
                 },
     
-                actor: async (query: any, context: any) => {
-                    if (query.id === "5678") {
+                actor: async (args: any, context: any) => {
+                    if (args.id === "5678") {
                         return {
                             id: "5678",
                             name: "Tom Cruise",
                         };
                     }
-                    else if (query.id === "5679") {
+                    else if (args.id === "5679") {
                         return {
                             id: "5679",
                             name: "Samantha Morton",
                         };
                     }
                     else {
-                        throw new Error("Unexpected id: " + query.id);
+                        throw new Error("Unexpected id: " + args.id);
                     }    
                 },
             },
@@ -543,8 +555,8 @@ describe("nested entities", () => {
                 //     ];
                 // },
 
-                movie: async (query: any, context: any) => {
-                    expect(query.id).toBe("1234");
+                movie: async (args: any, context: any) => {
+                    expect(args.id).toBe("1234");
     
                     return {
                         id: "1234",
@@ -553,21 +565,21 @@ describe("nested entities", () => {
                     };
                 },
     
-                actor: async (query: any, context: any) => {
-                    if (query.id === "5678") {
+                actor: async (args: any, context: any) => {
+                    if (args.id === "5678") {
                         return {
                             id: "5678",
                             name: "Tom Cruise",
                         };
                     }
-                    else if (query.id === "5679") {
+                    else if (args.id === "5679") {
                         return {
                             id: "5679",
                             name: "Samantha Morton",
                         };
                     }
                     else {
-                        throw new Error("Unexpected id: " + query.id);
+                        throw new Error("Unexpected id: " + args.id);
                     }    
                 },
             },
@@ -593,24 +605,24 @@ describe("nested entities", () => {
         const root = {
             query: {
                 // Find the actors for a particular movie.
-                "movie=>actor": async (query: any, context: any) => {
-                    if (query.entity.id === "1234") {
+                "movie=>actor": async (args: any, context: any) => {
+                    if (args.entity.id === "1234") {
                         return [
                             "2345",
                             "3456",
                         ];
                     }
-                    else if (query.entity.id === "5678") {
+                    else if (args.entity.id === "5678") {
                         return [
                             "4567",
                         ];
                     }
                     else {
-                        throw new Error(`Unexpected movie id ${query.entity.id}.`);
+                        throw new Error(`Unexpected movie id ${args.entity.id}.`);
                     }
                 },
 
-                movie: async (query: any, context: any) => {
+                movie: async (args: any, context: any) => {
                     return [
                         {
                             id: "1234",
@@ -625,27 +637,27 @@ describe("nested entities", () => {
                     ];
                 },
     
-                actor: async (query: any, context: any) => {
-                    if (query.id === "2345") {
+                actor: async (args: any, context: any) => {
+                    if (args.id === "2345") {
                         return {
                             id: "2345",
                             name: "Tom Cruise",
                         };
                     }
-                    else if (query.id === "3456") {
+                    else if (args.id === "3456") {
                         return {
                             id: "3456",
                             name: "Samantha Morton",
                         };
                     }
-                    else if (query.id === "4567") {
+                    else if (args.id === "4567") {
                         return {
                             id: "4567",
                             name: "Matt Daemon",
                         };
                     }
                     else {
-                        throw new Error("Unexpected actor id: " + query.id);
+                        throw new Error("Unexpected actor id: " + args.id);
                     }    
                 },
             },

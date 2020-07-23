@@ -6,30 +6,22 @@ describe("entity search", () => {
 
         const query = {
             movie: {
-                skip: 0, // Simulates pagination.
-                limit: 2,
-                search: {
-                    year: 2002, // Simulates search.
-                },
-                include: {
-                    name: true, // Restrict results.
-                    year: true,
-                },
-                exclude: { // Exclude results
-                    director: true,
+                args: {
+                    skip: 0, // Simulates pagination.
+                    limit: 2,
+                    search: {
+                        year: 2002, // Simulates search.
+                    },
                 },
             },
         };
 
         const root = {
             query: {
-                movie: async (query: any, context: any) => {
-                    expect(query.skip).toBe(0);
-                    expect(query.limit).toBe(2);
-                    expect(query.search.year).toBe(2002);
-                    expect(query.include.name).toBe(true);
-                    expect(query.include.year).toBe(true);
-                    expect(query.exclude.director).toBe(true);
+                movie: async (args: any, context: any) => {
+                    expect(args.skip).toBe(0);
+                    expect(args.limit).toBe(2);
+                    expect(args.search.year).toBe(2002);
     
                     return [
                         {
@@ -69,7 +61,7 @@ describe("entity search", () => {
 
         const root = {
             query: {
-                movieInfo: async (query: any, context: any) => {
+                movieInfo: async (args: any, context: any) => {
                     return {
                         total: 202, // Total number of movies.
                     };

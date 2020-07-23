@@ -7,14 +7,16 @@ describe("entity query", () => {
         const query = {
             op: "query",
             movie: {
-                id: "1234",
+                args: {
+                    id: "1234",
+                },
             },
         };
 
         const root = {
             query: {
-                movie: async (query: any, context: any) => {
-                    expect(query.id).toBe("1234");
+                movie: async (args: any, context: any) => {
+                    expect(args.id).toBe("1234");
     
                     return {
                         name: "Inception",
@@ -38,7 +40,9 @@ describe("entity query", () => {
         const query = {
             op: "query",
             movie: {
-                id: "1234",
+                args: {
+                    id: "1234",
+                },
             },
         };
 
@@ -58,7 +62,9 @@ describe("entity query", () => {
         const query = {
             op: "query",
             movie: {
-                id: "1234",
+                args: {
+                    id: "1234",
+                },
             },
         };
 
@@ -75,25 +81,29 @@ describe("entity query", () => {
 
         const query = {
             movie: {
-                id: "1234",
+                args: {
+                    id: "1234",
+                },
             },
             actor: {
-                id: "5678",
+                args: {
+                    id: "5678",
+                },
             },
         };
 
         const root = {
             query: {
-                movie: async (query: any, context: any) => {
-                    expect(query.id).toBe("1234");
+                movie: async (args: any, context: any) => {
+                    expect(args.id).toBe("1234");
     
                     return {
                         name: "Inception",
                         year: 2010,
                     };
                 },
-                actor: async (query: any, context: any) => {
-                    expect(query.id).toBe("5678");
+                actor: async (args: any, context: any) => {
+                    expect(args.id).toBe("5678");
     
                     return {
                         name: "Leonardo Dicaprio",
