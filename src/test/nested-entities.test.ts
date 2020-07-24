@@ -5,18 +5,20 @@ describe("nested entities", () => {
     it("can get one nested entity", async ()  => {
 
         const query = {
-            movie: {
-                args: {
-                    id: "1234",
-                },
-                lookup: {
-                    director: true,
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                    lookup: {
+                        director: true,
+                    },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 movie: async (args: any, context: any) => {
                     expect(args.id).toBe("1234");
     
@@ -56,18 +58,20 @@ describe("nested entities", () => {
     it("error when an unsupport lookup type is used", async ()  => {
 
         const query = {
-            movie: {
-                args: {
-                    id: "1234",
-                },
-                lookup: {
-                    director: "--string-is-a-bad-lookup-type--",
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                    lookup: {
+                        director: "--string-is-a-bad-lookup-type--",
+                    },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 movie: async (args: any, context: any) => {
                     expect(args.id).toBe("1234");
     
@@ -98,18 +102,20 @@ describe("nested entities", () => {
     it("can get one nested entity with id from field", async ()  => {
 
         const query = {
-            movie: {
-                args: {
-                    id: "1234",
-                },
-                lookup: {
-                    director: { from: "directorId", }, // Lookup director entity by directorId.
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                    lookup: {
+                        director: { from: "directorId", }, // Lookup director entity by directorId.
+                    },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 movie: async (args: any, context: any) => {
                     expect(args.id).toBe("1234");
     
@@ -149,18 +155,20 @@ describe("nested entities", () => {
     it("can retrieve multiple nested entities", async ()  => {
 
         const query = {
-            movie: {
-                args: {
-                    id: "1234",
-                },
-                lookup: {
-                    actor: true,
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                    lookup: {
+                        actor: true,
+                    },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 movie: async (args: any, context: any) => {
                     expect(args.id).toBe("1234");
     
@@ -218,21 +226,23 @@ describe("nested entities", () => {
     it("can retrieve multiple nested entities with id from field", async ()  => {
 
         const query = {
-            movie: {
-                args: {
-                    id: "1234",
-                },
-                lookup: {
-                    actor: {
-                        from: "actorIds",
-                        as: "actors",
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                    lookup: {
+                        actor: {
+                            from: "actorIds",
+                            as: "actors",
+                        },
                     },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 movie: async (args: any, context: any) => {
                     expect(args.id).toBe("1234");
     
@@ -290,18 +300,20 @@ describe("nested entities", () => {
     it("can retrieve multiple entiites each with a single nested entity", async ()  => {
 
         const query = {
-            movie: {
-                lookup: {
-                    director: {
-                        from: "directorId",
-                        as: "director",
+            get: {
+                movie: {
+                    lookup: {
+                        director: {
+                            from: "directorId",
+                            as: "director",
+                        },
                     },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 movie: async (args: any, context: any) => {
                     return [
                         {
@@ -363,18 +375,20 @@ describe("nested entities", () => {
     it("can retrieve multiple entiites each with multiple nested entities", async ()  => {
 
         const query = {
-            movie: {
-                lookup: {
-                    actor: {
-                        from: "actorIds",
-                        as: "actors",
+            get: {
+                movie: {
+                    lookup: {
+                        actor: {
+                            from: "actorIds",
+                            as: "actors",
+                        },
                     },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 movie: async (args: any, context: any) => {
                     return [
                         {
@@ -455,20 +469,22 @@ describe("nested entities", () => {
     it("can retrieve multiple nested entities using entity map fn", async ()  => {
 
         const query = {
-            movie: {
-                args: {
-                    id: "1234",
-                },
-                lookup: {
-                    actor: {
-                        as: "actors",
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                    lookup: {
+                        actor: {
+                            as: "actors",
+                        },
                     },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 // Find the actors for a particular movie.
                 "movie=>actor": async (args: any, context: any) => {
                     expect(args.entity.id).toBe("1234");
@@ -532,11 +548,13 @@ describe("nested entities", () => {
     it("error when entity map is not found", async ()  => {
 
         const query = {
-            movie: {
-                id: "1234",
-                lookup: {
-                    actor: {
-                        as: "actors",
+            get: {
+                movie: {
+                    id: "1234",
+                    lookup: {
+                        actor: {
+                            as: "actors",
+                        },
                     },
                 },
             },
@@ -593,17 +611,19 @@ describe("nested entities", () => {
     it("can retrieve multiple entities with multipled nested entities using entity map fn", async ()  => {
 
         const query = {
-            movie: {
-                lookup: {
-                    actor: {
-                        as: "actors",
+            get: {
+                movie: {
+                    lookup: {
+                        actor: {
+                            as: "actors",
+                        },
                     },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 // Find the actors for a particular movie.
                 "movie=>actor": async (args: any, context: any) => {
                     if (args.entity.id === "1234") {

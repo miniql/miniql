@@ -5,12 +5,13 @@ describe("entity query", () => {
     it("can update entity", async ()  => {
 
         const query = {
-            op: "update",
-            movie: {
-                args: {
-                    id: "1234",
-                    param: {
-                        views: 5,
+            update: {
+                movie: {
+                    args: {
+                        id: "1234",
+                        param: {
+                            views: 5,
+                        },
                     },
                 },
             },

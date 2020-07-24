@@ -5,19 +5,21 @@ describe("entity search", () => {
     it("can get entities", async ()  => {
 
         const query = {
-            movie: {
-                args: {
-                    skip: 0, // Simulates pagination.
-                    limit: 2,
-                    search: {
-                        year: 2002, // Simulates search.
+            get: {
+                movie: {
+                    args: {
+                        skip: 0, // Simulates pagination.
+                        limit: 2,
+                        search: {
+                            year: 2002, // Simulates search.
+                        },
                     },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 movie: async (args: any, context: any) => {
                     expect(args.skip).toBe(0);
                     expect(args.limit).toBe(2);
@@ -55,12 +57,14 @@ describe("entity search", () => {
     it("can get total entities returned from resolver", async ()  => {
 
         const query = {
-            movieInfo: {
+            get: {
+                movieInfo: {
+                },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 movieInfo: async (args: any, context: any) => {
                     return {
                         total: 202, // Total number of movies.

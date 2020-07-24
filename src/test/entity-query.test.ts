@@ -5,16 +5,17 @@ describe("entity query", () => {
     it("can retreive entity", async ()  => {
 
         const query = {
-            op: "query",
-            movie: {
-                args: {
-                    id: "1234",
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
                 },
-            },
+            }
         };
 
         const root = {
-            query: {
+            get: {
                 movie: async (args: any, context: any) => {
                     expect(args.id).toBe("1234");
     
@@ -35,20 +36,21 @@ describe("entity query", () => {
         });
     });
 
-    it("can retreive entity named resolver", async ()  => {
+    it("can retreive entity with explicitly named resolver", async ()  => {
 
         const query = {
-            op: "query",
-            film: {
-                from: "movie",
-                args: {
-                    id: "1234",
+            get: {
+                film: {
+                    from: "movie",
+                    args: {
+                        id: "1234",
+                    },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 movie: async (args: any, context: any) => {
                     expect(args.id).toBe("1234");
     
@@ -72,16 +74,17 @@ describe("entity query", () => {
     it("error when resolver is not found", async ()  => {
 
         const query = {
-            op: "query",
-            movie: {
-                args: {
-                    id: "1234",
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
                 },
             },
         };
 
         const root = {
-            query: {
+            get: {
                 // No resolver. 
             },
         };
@@ -94,10 +97,11 @@ describe("entity query", () => {
     it("error when operation is not found", async ()  => {
 
         const query = {
-            op: "query",
-            movie: {
-                args: {
-                    id: "1234",
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
                 },
             },
         };
@@ -114,20 +118,22 @@ describe("entity query", () => {
     it("can retreive separate entities", async ()  => {
 
         const query = {
-            movie: {
-                args: {
-                    id: "1234",
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
                 },
-            },
-            actor: {
-                args: {
-                    id: "5678",
+                actor: {
+                    args: {
+                        id: "5678",
+                    },
                 },
-            },
+            }
         };
 
         const root = {
-            query: {
+            get: {
                 movie: async (args: any, context: any) => {
                     expect(args.id).toBe("1234");
     
@@ -156,6 +162,60 @@ describe("entity query", () => {
             actor: {
                 name: "Leonardo Dicaprio",
                 born: 1974,
+            },
+        });
+    });
+
+    it("can retreive multiple entities with different aliases", async ()  => {
+
+        const query = {
+            get: {
+                movie1: {
+                    from: "movie",
+                    args: {
+                        id: "1234",
+                    },
+                },
+                movie2: {
+                    from: "movie",
+                    args: {
+                        id: "5678",
+                    },
+                },
+            }
+        };
+
+        const root = {
+            get: {
+                movie: async (args: any, context: any) => {
+                    if (args.id === "1234") {
+                        return {
+                            name: "Inception",
+                            year: 2010,
+                        };
+                    }
+                    else if (args.id === "5678") {
+                        return {
+                            name: "The Bourne Identity",
+                            year: 2002,
+                        };
+                    }
+                    else {
+                        throw new Error(`Unexpected id ${args.id}.`);
+                    }
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(result).toEqual({
+            movie1: {
+                name: "Inception",
+                year: 2010,
+            },
+            movie2: {
+                name: "The Bourne Identity",
+                year: 2002,
             },
         });
     });
