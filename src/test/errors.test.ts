@@ -107,7 +107,7 @@ describe("entity query", () => {
             .toThrow();
     });
 
-    it("error when resolver is not found", async ()  => {
+    it("error when resolver is missing", async ()  => {
 
         const query: IQuery = {
             get: {
@@ -119,9 +119,59 @@ describe("entity query", () => {
             },
         };
 
-        const root = {
+        const root: any = {
             get: {
                 // No resolver. 
+            },
+        };
+
+        await expect(miniql(query, root, {}))
+            .rejects
+            .toThrow();
+    });
+
+    it("error when resolver invoke function is missing", async ()  => {
+
+        const query: IQuery = {
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                },
+            },
+        };
+
+        const root: any = {
+            get: {
+                movie: {
+                    // -- missing invoke function.
+                },
+            },
+        };
+
+        await expect(miniql(query, root, {}))
+            .rejects
+            .toThrow();
+    });
+
+    it("error when resolver invoke function is not actually a function", async ()  => {
+
+        const query: IQuery = {
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                },
+            },
+        };
+
+        const root: any = {
+            get: {
+                movie: {
+                    invoke: "--bad-type--",
+                },
             },
         };
 
@@ -142,7 +192,7 @@ describe("entity query", () => {
             },
         };
 
-        const root = {
+        const root: IQueryResolver = {
             // No operation supported.
         };
 
@@ -201,7 +251,7 @@ describe("entity query", () => {
             .toThrow();
     });
 
-    it("error when nested resovle function is missing", async ()  => {
+    it("error when nested resolve function is missing", async ()  => {
 
         const query: IQuery = {
             get: {
@@ -243,7 +293,7 @@ describe("entity query", () => {
             .toThrow();
     });
 
-    it("error when nested resolve function is missing", async ()  => {
+    it("error when nested resolvers are missing", async ()  => {
 
         const query: IQuery = {
             get: {

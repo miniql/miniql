@@ -180,16 +180,24 @@ interface IQueryGlobals {
 //
 async function resolveEntity(entityQuery: IEntityQuery, output: any, entityTypeName: string, queryGlobals: IQueryGlobals) {
     
-    const entityResolverName = entityQuery.from !== undefined ? entityQuery.from : entityTypeName; //TODO: check "from is a string"
+    const entityResolverName = entityQuery.from !== undefined ? entityQuery.from : entityTypeName;
     const entityResolver = queryGlobals.operationResolver[entityResolverName];
     if (!entityResolver) {
         throw new Error(createMissingResolverErrorMessage(queryGlobals.opName, entityTypeName, entityTypeName));
     }
 
+    if (!entityResolver.invoke) {
+        throw new Error(`Entity resolver "${entityTypeName}" is missing an "invoke" function.`);
+    }
+
+    if (!t(entityResolver.invoke).isFunction) {
+        throw new Error(`Expected "invoke" function for entity resolver "${entityTypeName}" is to be a function.`);
+    }
+
     //
     // Resolve this entity.
     //
-    const resolvedEntity = await entityResolver.invoke(entityQuery.args || {}, queryGlobals.context); //TODO: Do these in parallel. TODO: error check that invoke fn exists.
+    const resolvedEntity = await entityResolver.invoke(entityQuery.args || {}, queryGlobals.context); //TODO: Do these in parallel.
 
     //
     // Plug the resolved entity into the query result.
