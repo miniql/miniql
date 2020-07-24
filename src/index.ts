@@ -90,10 +90,6 @@ export async function miniql(rootQuery: IQuery, root: IQueryResolver, context: a
     }
 
     for (const queryKey of Object.keys(queryOperation)) {
-        if (queryKey === "op") {
-            continue;
-        }
-
         const entityQuery = queryOperation[queryKey]; //TODO: check this is an object!
         const entityTypeName = entityQuery.from !== undefined ? entityQuery.from : queryKey; //TODO: check "from is a string"
 
