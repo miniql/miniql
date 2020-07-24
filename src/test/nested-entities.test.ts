@@ -24,7 +24,7 @@ describe("nested entities", () => {
                         id: "1234",
                         name: "Minority Report",
                         year: 2002,
-                        director: "5678",
+                        director: { id: "5678" }, //TODO: !!!
                     };
                 },
     
@@ -75,7 +75,7 @@ describe("nested entities", () => {
                         id: "1234",
                         name: "Minority Report",
                         year: 2002,
-                        director: "5678",
+                        director: { id: "5678" }, //TODO: !!!
                     };
                 },
     
@@ -117,7 +117,7 @@ describe("nested entities", () => {
                         id: "1234",
                         name: "Minority Report",
                         year: 2002,
-                        directorId: "5678",
+                        directorId: { id: "5678" }, //TODO: !!!
                     };
                 },
     
@@ -169,8 +169,8 @@ describe("nested entities", () => {
                         name: "Minority Report",
                         year: 2002,
                         actor: [
-                            "5678",
-                            "5679",
+                            { id: "5678" }, //TODO: !!!
+                            { id: "5679" }, //TODO: !!!
                         ],
                     };
                 },
@@ -241,8 +241,8 @@ describe("nested entities", () => {
                         name: "Minority Report",
                         year: 2002,
                         actorIds: [
-                            "5678",
-                            "5679",
+                            { id: "5678" }, //todo:
+                            { id: "5679" }, //todo:
                         ],
                     };
                 },
@@ -307,12 +307,12 @@ describe("nested entities", () => {
                         {
                             name: "Minority Report",
                             year: 2002,
-                            directorId: "1234",
+                            directorId: { id: "1234" }, //todo:
                         },
                         {
                             name: "The Bourne Identity",
                             year: 2002,
-                            directorId: "5678",
+                            directorId: { id: "5678" }, //todo:
                         },
                     ];
                 },
@@ -381,15 +381,15 @@ describe("nested entities", () => {
                             name: "Minority Report",
                             year: 2002,
                             actorIds: [
-                                "1234",
-                                "5678",
+                                { id: "1234" }, //todo:
+                                { id: "5678" }, //todo:
                             ],
                         },
                         {
                             name: "The Bourne Identity",
                             year: 2002,
                             actorIds: [
-                                "9123",
+                                { id: "9123" }, //todo:
                             ],
                         },
                     ];
@@ -474,8 +474,8 @@ describe("nested entities", () => {
                     expect(args.entity.id).toBe("1234");
 
                     return [
-                        "5678",
-                        "5679",
+                        { id: "5678" },
+                        { id: "5679" },
                     ];
                 },
 
@@ -608,13 +608,13 @@ describe("nested entities", () => {
                 "movie=>actor": async (args: any, context: any) => {
                     if (args.entity.id === "1234") {
                         return [
-                            "2345",
-                            "3456",
+                            { id: "2345" }, //TODO:
+                            { id: "3456" }, //todo:
                         ];
                     }
                     else if (args.entity.id === "5678") {
                         return [
-                            "4567",
+                            { id: "4567" }, //todo:
                         ];
                     }
                     else {
