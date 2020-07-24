@@ -10,7 +10,7 @@ describe("nested entities", () => {
                     args: {
                         id: "1234",
                     },
-                    lookup: {
+                    resolve: {
                         director: true,
                     },
                 },
@@ -63,7 +63,7 @@ describe("nested entities", () => {
                     args: {
                         id: "1234",
                     },
-                    lookup: {
+                    resolve: {
                         director: "--string-is-a-bad-lookup-type--",
                     },
                 },
@@ -107,7 +107,7 @@ describe("nested entities", () => {
                     args: {
                         id: "1234",
                     },
-                    lookup: {
+                    resolve: {
                         director: { from: "directorId", }, // Lookup director entity by directorId.
                     },
                 },
@@ -160,7 +160,7 @@ describe("nested entities", () => {
                     args: {
                         id: "1234",
                     },
-                    lookup: {
+                    resolve: {
                         actor: true,
                     },
                 },
@@ -231,7 +231,7 @@ describe("nested entities", () => {
                     args: {
                         id: "1234",
                     },
-                    lookup: {
+                    resolve: {
                         actor: {
                             from: "actorIds",
                             as: "actors",
@@ -302,7 +302,7 @@ describe("nested entities", () => {
         const query = {
             get: {
                 movie: {
-                    lookup: {
+                    resolve: {
                         director: {
                             from: "directorId",
                             as: "director",
@@ -377,7 +377,7 @@ describe("nested entities", () => {
         const query = {
             get: {
                 movie: {
-                    lookup: {
+                    resolve: {
                         actor: {
                             from: "actorIds",
                             as: "actors",
@@ -474,7 +474,7 @@ describe("nested entities", () => {
                     args: {
                         id: "1234",
                     },
-                    lookup: {
+                    resolve: {
                         actor: {
                             as: "actors",
                         },
@@ -551,7 +551,7 @@ describe("nested entities", () => {
             get: {
                 movie: {
                     id: "1234",
-                    lookup: {
+                    resolve: {
                         actor: {
                             as: "actors",
                         },
@@ -613,7 +613,7 @@ describe("nested entities", () => {
         const query = {
             get: {
                 movie: {
-                    lookup: {
+                    resolve: {
                         actor: {
                             as: "actors",
                         },

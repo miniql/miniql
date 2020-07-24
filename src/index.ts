@@ -25,7 +25,7 @@ export interface IEntityQuery {
     //
     // Instructions on what nested/related entities should be resolved.
     //
-    lookup?: INestedEntityResolve;
+    resolve?: INestedEntityResolve;
 }
 
 //
@@ -98,24 +98,24 @@ export async function miniql(rootQuery: IQuery, root: IQueryResolver, context: a
         const entity = await resolver(entityQuery.args || {}, context); //TODO: Do these in parallel.
         output[queryKey] = entity;
 
-        if (entityQuery.lookup) {
+        if (entityQuery.resolve) {
             //
-            // Lookup nested entities.
+            // Resolve nested entities.
             //
-            for (const nestedEntityKey of Object.keys(entityQuery.lookup)) {
-                const lookup = entityQuery.lookup[nestedEntityKey];
+            for (const nestedEntityKey of Object.keys(entityQuery.resolve)) {
+                const entityResolve = entityQuery.resolve[nestedEntityKey];
                 let nestedQueryFieldName: string | undefined;
                 let outputFieldName: string;
-                if (t(lookup).isObject) {
-                    nestedQueryFieldName = lookup.from;
-                    outputFieldName = lookup.as || nestedEntityKey;
+                if (t(entityResolve).isObject) {
+                    nestedQueryFieldName = entityResolve.from;
+                    outputFieldName = entityResolve.as || nestedEntityKey;
                 }
-                else if (lookup === true) {
+                else if (entityResolve === true) {
                     nestedQueryFieldName = nestedEntityKey;
                     outputFieldName = nestedEntityKey;
                 }
                 else {
-                    throw new Error(`Unsupported type for "lookup" field: ${typeof(lookup)}.`);
+                    throw new Error(`Unsupported type for "lookup" field: ${typeof(entityResolve)}.`);
                 }
 
                 if (t(entity).isArray) {
