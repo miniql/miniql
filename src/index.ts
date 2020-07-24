@@ -49,9 +49,31 @@ export interface IQuery {
 };
 
 //
+// Represents a query resolver. 
+// This is a MiniQL backend.
+// An object that finds entities.
+//
+export interface IQueryOperationResolver {
+    //
+    // Each entity defines a function used to "resolve" that entity.
+    //
+    [entityTypeName: string]: Function; //TODO: Can put a better type on this function after the next restructure.
+};
+
+//
+// Represents a query resolver.
+//
+export interface IQueryResolver {
+    // 
+    // Each query can choose its type of operation (eg get or update).
+    //
+    [operationName: string]: IQueryOperationResolver;
+}
+
+//
 // Execute a query.
 //
-export async function miniql(rootQuery: IQuery, root: any, context: any): Promise<any> {
+export async function miniql(rootQuery: IQuery, root: IQueryResolver, context: any): Promise<any> {
 
     const output: any = {};
     const queryOperationName = Object.keys(rootQuery)[0]; //TODO: error check! Only one type!
