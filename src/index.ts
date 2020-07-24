@@ -123,11 +123,23 @@ export async function miniql<T = any>(rootQuery: IQuery, rootResolver: IQueryRes
 
     for (const opName of opNames) {
         const operationQuery = rootQuery[opName];
+        if (!operationQuery) {
+            throw new Error(`Query operation "${opName}" is missing from query.`);
+        }
+
+        if (!t(operationQuery).isObject) {
+            throw new Error(`Expected query resolver for "${opName}" to be an object.`);
+        }
+
         const operationResolver = rootResolver[opName];
         if (!operationResolver) {
             throw new Error(createMissingQueryOperationErrorMessage(opName));
         }
-    
+
+        if (!t(operationResolver).isObject) {
+            throw new Error(`Expected query resolver for "${opName}" to be an object.`);
+        }
+
         for (const entityTypeName of Object.keys(operationQuery)) {
             const entityQuery = operationQuery[entityTypeName]; //TODO: check this is an object!
             await resolveEntity(entityQuery, output, entityTypeName, { operationResolver, opName, context });

@@ -131,50 +131,6 @@ describe("entity query", () => {
         });
     });
 
-    it("error when resolver is not found", async ()  => {
-
-        const query: IQuery = {
-            get: {
-                movie: {
-                    args: {
-                        id: "1234",
-                    },
-                },
-            },
-        };
-
-        const root = {
-            get: {
-                // No resolver. 
-            },
-        };
-
-        await expect(miniql(query, root, {}))
-            .rejects
-            .toThrow();
-    });
-
-    it("error when operation is not found", async ()  => {
-
-        const query: IQuery = {
-            get: {
-                movie: {
-                    args: {
-                        id: "1234",
-                    },
-                },
-            },
-        };
-
-        const root = {
-            // No operation supported.
-        };
-
-        await expect(miniql(query, root, {}))
-            .rejects
-            .toThrow();
-    });
-
     it("can retreive separate entities", async ()  => {
 
         const query: IQuery = {
