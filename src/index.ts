@@ -121,7 +121,7 @@ export async function miniql(rootQuery: IQuery, root: IQueryResolver, context: a
                     outputFieldName = nestedEntityKey;
                 }
                 else {
-                    throw new Error(`Unsupported type for "lookup" field: ${typeof(entityResolve)}.`);
+                    throw new Error(`Unsupported type for "resolve" field: ${typeof(entityResolve)}.`);
                 }
 
                 if (t(entity).isArray) {
