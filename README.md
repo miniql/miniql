@@ -57,6 +57,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
     - Blacklisted fields
     - Whitelisted fields
     - All data, partial data, whatever you want!
+- Optionally alias entities in the output. You control the field names that returned in the query result.
 
 ## Future
 
@@ -65,9 +66,12 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - Add a configurable JSON file resolver.
 - Caching and aggregation (wishlist)
 - Authentication / authorization.
-- Renames / aliases (this is done, but just for lookups).
 - Hooks - be notifed when particular entities/fields have been updated.
 - Reverse relationships. Get director entity and lookup all their movies.
 - Optimisation to do queries in parallel.
 - Built-in filtering?
 - How to retreieve a count after search/filtering is applied.
+
+## Wishlist
+
+- Parallelise complex queries over multiple nodes.

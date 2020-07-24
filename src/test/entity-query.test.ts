@@ -35,6 +35,40 @@ describe("entity query", () => {
         });
     });
 
+    it("can retreive entity named resolver", async ()  => {
+
+        const query = {
+            op: "query",
+            film: {
+                from: "movie",
+                args: {
+                    id: "1234",
+                },
+            },
+        };
+
+        const root = {
+            query: {
+                movie: async (args: any, context: any) => {
+                    expect(args.id).toBe("1234");
+    
+                    return {
+                        name: "Inception",
+                        year: 2010,
+                    };
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(result).toEqual({
+            film: {
+                name: "Inception",
+                year: 2010,
+            },
+        });
+    });
+
     it("error when resolver is not found", async ()  => {
 
         const query = {

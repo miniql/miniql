@@ -12,25 +12,27 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
         throw new Error(`Operation ${opName} is not supported.`);
     }
 
-    for (const entityKey of Object.keys(query)) {
-        if (entityKey === "op") {
+    for (const queryKey of Object.keys(query)) {
+        if (queryKey === "op") {
             continue;
         }
 
-        const resolver = operation[entityKey];
-        if (!resolver) {
-            throw new Error(`Failed to find resolver for operation ${opName} on enity ${entityKey}.`);
-        }
-        const subQuery = query[entityKey];
-        const entity = await resolver(subQuery.args || {}, context); //TODO: Do these in parallel.
-        output[entityKey] = entity;
+        const entityQuery = query[queryKey]; //TODO: check this is an object!
+        const entityTypeName = entityQuery.from !== undefined ? entityQuery.from : queryKey; //TODO: check "from is a string"
 
-        if (subQuery.lookup) {
+        const resolver = operation[entityTypeName];
+        if (!resolver) {
+            throw new Error(createMissingResolverErrorMessage(opName, entityTypeName, queryKey));
+        }
+        const entity = await resolver(entityQuery.args || {}, context); //TODO: Do these in parallel.
+        output[queryKey] = entity;
+
+        if (entityQuery.lookup) {
             //
             // Lookup nested entities.
             //
-            for (const nestedEntityKey of Object.keys(subQuery.lookup)) {
-                const lookup = subQuery.lookup[nestedEntityKey];
+            for (const nestedEntityKey of Object.keys(entityQuery.lookup)) {
+                const lookup = entityQuery.lookup[nestedEntityKey];
                 let nestedQueryFieldName: string | undefined;
                 let outputFieldName: string;
                 if (t(lookup).isObject) {
@@ -48,18 +50,38 @@ export async function miniql(query: any, root: any, context: any): Promise<any> 
                 if (t(entity).isArray) {
                     await Promise.all(
                         entity.map((singleEntity: any) => {
-                            return resolveEntity(nestedQueryFieldName, outputFieldName, singleEntity, entityKey, nestedEntityKey, operation, opName, context, root)
+                            return resolveEntity(nestedQueryFieldName, outputFieldName, singleEntity, queryKey, nestedEntityKey, operation, opName, context, root)
                         })
                     );
                 }
                 else {
-                    await resolveEntity(nestedQueryFieldName, outputFieldName, entity, entityKey, nestedEntityKey, operation, opName, context, root);
+                    await resolveEntity(nestedQueryFieldName, outputFieldName, entity, queryKey, nestedEntityKey, operation, opName, context, root);
                 }
             }
         }
     }
 
     return output;
+}
+
+//
+// Creates an error message for a missing resolver.
+//
+function createMissingResolverErrorMessage(opName: any, entityTypeName: any, queryKey: string): string {
+    return `
+Failed to find resolver for operation "${opName}" for entity "${entityTypeName}" outputting to "${queryKey}".\n
+You should define a resolver that looks like this:\n
+    const root = {\n
+        ${entityTypeName}: async function (args, context) => {
+            if (args.something) {
+                // ... Return a single entity that matches 'something'.
+            }
+            else {
+                // ... Return the set of entities (you probably want to use pagination).
+            }
+        }
+    };
+    `;
 }
 
 //
