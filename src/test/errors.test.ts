@@ -50,6 +50,42 @@ describe("entity query", () => {
             .toThrow();
     });
 
+    it("error when entity query is missing", async ()  => {
+
+        const query: any = {
+            get: {
+                movie: null,
+            },
+        };
+
+        const root: IQueryResolver = {
+            get: {
+            },
+        };
+
+        await expect(miniql(query, root, {}))
+            .rejects
+            .toThrow();
+    });
+
+    it("error when entity query has bad type", async ()  => {
+
+        const query: any = {
+            get: {
+                movie: "--bad-type",
+            },
+        };
+
+        const root: IQueryResolver = {
+            get: {
+            },
+        };
+
+        await expect(miniql(query, root, {}))
+            .rejects
+            .toThrow();
+    });
+
     it("error when operation resolver has bad type", async ()  => {
 
         const query: IQuery = {
