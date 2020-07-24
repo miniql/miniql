@@ -1,16 +1,14 @@
 import { t } from "typy";
-
-//TODO: replace this.
-export interface INestedEntityDesc {
-    from?: string;
-    as?: string;
-}
+import { networkInterfaces } from "os";
 
 //
 // Represents a nested/related entity to be resovled.
 //
 export interface INestedEntityResolve {
-    [entityTypeName: string]: boolean | INestedEntityDesc; //TODO: This needs to be recursive!B
+    //
+    // Each nested entity is just another entity query.
+    //
+    [entityTypeName: string]: IEntityQuery;
 }
 
 //
@@ -55,15 +53,50 @@ export interface IQuery {
 };
 
 //
+// Represents a resolver for a nested entity.
+//
+export interface INestedEntityResolver {
+    //
+    // User-defined function that can get retreive a set of entities related to the parent entity.
+    //
+    invoke: (parent: any, args: any, context: any) => Promise<any>;
+}
+
+//
+// Represents a set of resolvers for nested entities.
+//
+export interface INestedEntityResolvers {
+    //
+    // Each nested entity requires a resolver to retrieve entities from the parent entity.
+    //
+    [entityTypeName: string]: INestedEntityResolver;
+}
+
+//
+// Represents a resolver for this type of entity.
+//
+export interface IEntityQueryResolver {
+    //
+    // User-defined function that can get or update an entity or set of entities.
+    //
+    invoke: (args: any, context: any) => Promise<any>;
+
+    //
+    // User-defined nested entity resolvers.
+    //
+    nested?: INestedEntityResolvers;
+}
+
+//
 // Represents a query resolver. 
 // This is a MiniQL backend.
 // An object that finds entities.
 //
 export interface IQueryOperationResolver {
     //
-    // Each entity defines a function used to "resolve" that entity.
+    // Each entity requires a resolver to retrieve or update the entities of this type.
     //
-    [entityTypeName: string]: Function; //TODO: Can put a better type on this function after the next restructure.
+    [entityTypeName: string]: IEntityQueryResolver;
 };
 
 //
@@ -79,63 +112,101 @@ export interface IQueryResolver {
 //
 // Execute a query.
 //
-export async function miniql(rootQuery: IQuery, root: IQueryResolver, context: any): Promise<any> {
+export async function miniql<T = any>(rootQuery: IQuery, rootResolver: IQueryResolver, context: any): Promise<T> {
 
     const output: any = {};
-    const queryOperationName = Object.keys(rootQuery)[0]; //TODO: error check! Only one type!
-    const queryOperation = rootQuery[queryOperationName];
-    const queryOperationResolver = root[queryOperationName];
-    if (!queryOperationResolver) {
-        throw new Error(createMissingQueryOperationErrorMessage(queryOperationName));
+    const operationName = Object.keys(rootQuery)[0]; //TODO: error check! Only one type!
+    const operationQuery = rootQuery[operationName];
+    const operationResolver = rootResolver[operationName];
+    if (!operationResolver) {
+        throw new Error(createMissingQueryOperationErrorMessage(operationName));
     }
 
-    for (const queryKey of Object.keys(queryOperation)) {
-        const entityQuery = queryOperation[queryKey]; //TODO: check this is an object!
-        const entityTypeName = entityQuery.from !== undefined ? entityQuery.from : queryKey; //TODO: check "from is a string"
-
-        const resolver = queryOperationResolver[entityTypeName];
-        if (!resolver) {
-            throw new Error(createMissingResolverErrorMessage(queryOperationName, entityTypeName, queryKey));
-        }
-        const entity = await resolver(entityQuery.args || {}, context); //TODO: Do these in parallel.
-        output[queryKey] = entity;
-
-        if (entityQuery.resolve) {
-            //
-            // Resolve nested entities.
-            //
-            for (const nestedEntityKey of Object.keys(entityQuery.resolve)) {
-                const entityResolve = entityQuery.resolve[nestedEntityKey];
-                let nestedQueryFieldName: string | undefined;
-                let outputFieldName: string;
-                if (t(entityResolve).isObject) {
-                    nestedQueryFieldName = (entityResolve as INestedEntityDesc).from;
-                    outputFieldName = (entityResolve as INestedEntityDesc).as || nestedEntityKey;
-                }
-                else if (entityResolve === true) {
-                    nestedQueryFieldName = nestedEntityKey;
-                    outputFieldName = nestedEntityKey;
-                }
-                else {
-                    throw new Error(`Unsupported type for "resolve" field: ${typeof(entityResolve)}.`);
-                }
-
-                if (t(entity).isArray) {
-                    await Promise.all(
-                        entity.map((singleEntity: any) => {
-                            return resolveEntity(nestedQueryFieldName, outputFieldName, singleEntity, queryKey, nestedEntityKey, queryOperationResolver, queryOperationName, context, root)
-                        })
-                    );
-                }
-                else {
-                    await resolveEntity(nestedQueryFieldName, outputFieldName, entity, queryKey, nestedEntityKey, queryOperationResolver, queryOperationName, context, root);
-                }
-            }
-        }
+    for (const entityTypeName of Object.keys(operationQuery)) {
+        const entityQuery = operationQuery[entityTypeName]; //TODO: check this is an object!
+        await resolveEntity(entityQuery, output, entityTypeName, operationResolver, operationName, context);
     }
 
     return output;
 }
+
+//
+// Resolves a root entity.
+//
+async function resolveEntity(entityQuery: IEntityQuery, output: any, entityTypeName: string, operationResolver: IQueryOperationResolver, operationName: string, context: any) {
+    
+    const entityResolverName = entityQuery.from !== undefined ? entityQuery.from : entityTypeName; //TODO: check "from is a string"
+    const entityResolver = operationResolver[entityResolverName];
+    if (!entityResolver) {
+        throw new Error(createMissingResolverErrorMessage(operationName, entityTypeName, entityTypeName));
+    }
+
+    //
+    // Resolve this entity.
+    //
+    const resolvedEntity = await entityResolver.invoke(entityQuery.args || {}, context); //TODO: Do these in parallel. TODO: error check that invoke fn exists.
+
+    //
+    // Plug the resolved entity into the query result.
+    //
+    output[entityTypeName] = resolvedEntity;
+
+    //
+    // Resolve nested entities.
+    //
+    await resolveNestedEntities(entityQuery, resolvedEntity, entityResolver, operationResolver, context);
+}
+
+//
+// Resolve nested entities for an entity.
+//
+async function resolveNestedEntities(entityQuery: IEntityQuery, parentEntity: any, parentEntityResolver: IEntityQueryResolver, operationResolver: IQueryOperationResolver, context: any) {
+    if (entityQuery.resolve) {
+        //
+        // Resolve nested entities.
+        //
+        for (const nestedEntityTypeName of Object.keys(entityQuery.resolve)) {
+            const nestedEntityQuery = entityQuery.resolve[nestedEntityTypeName];
+            if (!t(nestedEntityQuery).isObject) {
+                throw new Error(`Unsupported type for "resolve" field: ${typeof (nestedEntityQuery)}.`); //todo: is this tested?
+            }
+            if (t(parentEntity).isArray) {
+                await Promise.all(parentEntity.map((singleEntity: any) => {
+                    return resolveNestedEntity(nestedEntityQuery, singleEntity, nestedEntityTypeName, parentEntityResolver, operationResolver, context);
+                }));
+            }
+            else {
+                await resolveNestedEntity(nestedEntityQuery, parentEntity, nestedEntityTypeName, parentEntityResolver, operationResolver, context);
+            }
+        }
+    }
+}
+
+//
+// Resolves a nested entity.
+//
+async function resolveNestedEntity(nestedEntityQuery: IEntityQuery, parentEntity: any, nestedEntityTypeName: string, parentEntityResolver: IEntityQueryResolver, operationResolver: IQueryOperationResolver, context: any) {
+    
+    const nestedEntityResolverName = nestedEntityQuery.from !== undefined ? nestedEntityQuery.from : nestedEntityTypeName; //TODO: check "from is a string"
+    const nestedEntityResolver = parentEntityResolver.nested![nestedEntityResolverName]; //todo: error check that nested and the resolver both exist.
+
+    //
+    // Resolve this entity.
+    //
+    const resolvedEntity = await nestedEntityResolver.invoke(parentEntity, nestedEntityQuery.args || {}, context); //TODO: Do these in parallel. TODO: error check that invoke fn exists.
+
+    //
+    // Plug the resolved entity into the query result.
+    //
+    parentEntity[nestedEntityTypeName] = resolvedEntity;
+
+    //
+    // Resolve nested entities.
+    //
+    const rootEntityResolver = operationResolver[nestedEntityResolverName]; //todo: error check that it exists!
+    await resolveNestedEntities(nestedEntityQuery, resolvedEntity, rootEntityResolver, operationResolver, context);
+}
+
 
 //
 // Creates an error message for a missing query operation.
@@ -178,53 +249,4 @@ You must define a query resolver that looks like this:
         // ... Other query operations go here.
     };
 `;
-}
-
-//
-// Resolve a single entity.
-//
-async function resolveEntity(nestedQueryFieldName: string | undefined, outputFieldName: string, entity: any, entityKey: string, nestedEntityKey: string, operation: any, opName: any, context: any, root: any): Promise<void> {
-    let queryArgs: any;
-    if (nestedQueryFieldName) {
-        queryArgs = entity[nestedQueryFieldName]; //TODO: just need to execute a map fn here to package the id as "args".
-    }
-    else {
-        const mapFnName = `${entityKey}=>${nestedEntityKey}`;
-        const mapFn: (query: any, context: any) => any | undefined = operation[mapFnName];
-        if (!mapFn) {
-            throw new Error(`Failed to find entity mapping function ${mapFnName} for operation ${opName}`);
-        }
-        queryArgs = await mapFn({ entity: entity }, context);
-    }
-
-    let nestedEntity: any;
-    if (t(queryArgs).isArray) {
-        nestedEntity = await Promise.all(queryArgs.map((args: any) => lookupEntity(nestedEntityKey, args, root, context)));
-    }
-    else {
-        nestedEntity = await lookupEntity(nestedEntityKey, queryArgs, root, context); //TODO: Do these in parallel.
-    }
-
-    if (nestedQueryFieldName) {
-        if (outputFieldName !== nestedQueryFieldName) {
-            delete entity[nestedQueryFieldName];
-        }
-    }
-
-    entity[outputFieldName] = nestedEntity;
-}
-
-//
-// Look up an entity by id.
-//
-export async function lookupEntity(entityKey: string, queryArgs: any, root: any, context: any) {
-    const nestedQuery: any = {
-        get: { //TODO: operation type shouldn't be hard coded!
-        }
-    };
-    nestedQuery.get[entityKey] = {
-        args: queryArgs,
-    };
-    const nestedResult = await miniql(nestedQuery, root, context); //TODO: Do these in parallel.
-    return nestedResult[entityKey];
 }

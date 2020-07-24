@@ -1,10 +1,10 @@
-import { miniql } from "..";
+import { miniql, IQuery, IQueryResolver } from "..";
 
 describe("entity search", () => {
 
     it("can get entities", async ()  => {
 
-        const query = {
+        const query: IQuery = {
             get: {
                 movie: {
                     args: {
@@ -18,23 +18,25 @@ describe("entity search", () => {
             },
         };
 
-        const root = {
+        const root: IQueryResolver = {
             get: {
-                movie: async (args: any, context: any) => {
-                    expect(args.skip).toBe(0);
-                    expect(args.limit).toBe(2);
-                    expect(args.search.year).toBe(2002);
-    
-                    return [
-                        {
-                            name: "Minority Report",
-                            year: 2002,
-                        },
-                        {
-                            name: "The Bourne Identity",
-                            year: 2002,
-                        },
-                    ];
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.skip).toBe(0);
+                        expect(args.limit).toBe(2);
+                        expect(args.search.year).toBe(2002);
+        
+                        return [
+                            {
+                                name: "Minority Report",
+                                year: 2002,
+                            },
+                            {
+                                name: "The Bourne Identity",
+                                year: 2002,
+                            },
+                        ];
+                    },
                 },
             },
         };
@@ -65,10 +67,12 @@ describe("entity search", () => {
 
         const root = {
             get: {
-                movieInfo: async (args: any, context: any) => {
-                    return {
-                        total: 202, // Total number of movies.
-                    };
+                movieInfo: {
+                    invoke: async (args: any, context: any) => {
+                        return {
+                            total: 202, // Total number of movies.
+                        };
+                    },
                 },
             },
         };

@@ -19,13 +19,15 @@ describe("entity query", () => {
 
         const root = {
             update: {
-                movie: async (args: any, context: any) => {
-                    expect(args.id).toBe("1234");
-                    expect(args.param).toEqual({ views: 5 });
-    
-                    return {
-                        ok: true,
-                    };
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("1234");
+                        expect(args.param).toEqual({ views: 5 });
+        
+                        return {
+                            ok: true,
+                        };
+                    },
                 },
             },
         };
@@ -37,5 +39,4 @@ describe("entity query", () => {
             },
         });
     });
-
 });

@@ -1,42 +1,49 @@
-import { miniql } from "..";
+import { miniql, IQueryResolver, IQuery } from "..";
 
 describe("nested entities", () => {
 
     it("can get one nested entity", async ()  => {
 
-        const query = {
+        const query: IQuery = {
             get: {
                 movie: {
                     args: {
                         id: "1234",
                     },
                     resolve: {
-                        director: true,
+                        director: {
+                        },
                     },
                 },
             },
         };
 
-        const root = {
+        const root: IQueryResolver = {
             get: {
-                movie: async (args: any, context: any) => {
-                    expect(args.id).toBe("1234");
-    
-                    return {
-                        id: "1234",
-                        name: "Minority Report",
-                        year: 2002,
-                        director: { id: "5678" }, //TODO: !!!
-                    };
-                },
-    
-                director: async (args: any, context: any) => {
-                    expect(args.id).toBe("5678");
-    
-                    return {
-                        id: "5678",
-                        name: "Steven Spielberg",
-                    };
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("1234");
+        
+                        return {
+                            id: "1234",
+                            name: "Minority Report",
+                            year: 2002,
+                            director: "5678",
+                        };
+                    },
+
+                    nested: {
+                        director: {
+                            invoke: async (parent: any, args: any, context: any) => {
+                                expect(parent.director).toBe("5678");
+
+                                return {
+                                    id: "5678",
+                                    name: "Steven Spielberg",
+                                };
+                            },
+                        },
+                    },
                 },
             },
         };
@@ -55,9 +62,9 @@ describe("nested entities", () => {
         });
     });
 
-    it("error when an unsupport lookup type is used", async ()  => {
+    it("error when an unsupport resolve type is used", async ()  => {
 
-        const query = {
+        const query: IQuery = {
             get: {
                 movie: {
                     args: {
@@ -70,26 +77,32 @@ describe("nested entities", () => {
             },
         };
 
-        const root = {
+        const root: IQueryResolver = {
             get: {
-                movie: async (args: any, context: any) => {
-                    expect(args.id).toBe("1234");
-    
-                    return {
-                        id: "1234",
-                        name: "Minority Report",
-                        year: 2002,
-                        director: { id: "5678" }, //TODO: !!!
-                    };
-                },
-    
-                director: async (args: any, context: any) => {
-                    expect(args.id).toBe("5678");
-    
-                    return {
-                        id: "5678",
-                        name: "Steven Spielberg",
-                    };
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("1234");
+        
+                        return {
+                            id: "1234",
+                            name: "Minority Report",
+                            year: 2002,
+                            director: "5678",
+                        };
+                    },
+
+                    nested: {
+                        director: {
+                            invoke: async (parent: any, args: any, context: any) => {
+                                expect(parent.director).toBe("5678");
+
+                                return {
+                                    id: "5678",
+                                    name: "Steven Spielberg",
+                                };
+                            },
+                        },
+                    },
                 },
             },
         };
@@ -101,39 +114,46 @@ describe("nested entities", () => {
 
     it("can get one nested entity with id from field", async ()  => {
 
-        const query = {
+        const query: IQuery = {
             get: {
                 movie: {
                     args: {
                         id: "1234",
                     },
                     resolve: {
-                        director: { from: "directorId", }, // Lookup director entity by directorId.
+                        director: {
+                        },
                     },
                 },
             },
         };
 
-        const root = {
+        const root: IQueryResolver = {
             get: {
-                movie: async (args: any, context: any) => {
-                    expect(args.id).toBe("1234");
-    
-                    return {
-                        id: "1234",
-                        name: "Minority Report",
-                        year: 2002,
-                        directorId: { id: "5678" }, //TODO: !!!
-                    };
-                },
-    
-                director: async (args: any, context: any) => {
-                    expect(args.id).toBe("5678");
-    
-                    return {
-                        id: "5678",
-                        name: "Steven Spielberg",
-                    };
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("1234");
+        
+                        return {
+                            id: "1234",
+                            name: "Minority Report",
+                            year: 2002,
+                            directorId: "5678",
+                        };
+                    },
+
+                    nested: {
+                        director: {
+                            invoke: async (parent: any, args: any, context: any) => {
+                                expect(parent.directorId).toBe("5678");
+                
+                                return {
+                                    id: "5678",
+                                    name: "Steven Spielberg",
+                                };
+                            },
+                        },
+                    },
                 },
             },
         };
@@ -148,131 +168,66 @@ describe("nested entities", () => {
                     id: "5678",
                     name: "Steven Spielberg",
                 },
+                directorId: "5678",  //TODO: Be good be good to be able to exclude this.
             },
         });
     });
 
     it("can retrieve multiple nested entities", async ()  => {
 
-        const query = {
+        const query: IQuery = {
             get: {
                 movie: {
                     args: {
                         id: "1234",
                     },
                     resolve: {
-                        actor: true,
-                    },
-                },
-            },
-        };
-
-        const root = {
-            get: {
-                movie: async (args: any, context: any) => {
-                    expect(args.id).toBe("1234");
-    
-                    return {
-                        id: "1234",
-                        name: "Minority Report",
-                        year: 2002,
-                        actor: [
-                            { id: "5678" }, //TODO: !!!
-                            { id: "5679" }, //TODO: !!!
-                        ],
-                    };
-                },
-    
-                actor: async (args: any, context: any) => {
-                    if (args.id === "5678") {
-                        return {
-                            id: "5678",
-                            name: "Tom Cruise",
-                        };
-                    }
-                    else if (args.id === "5679") {
-                        return {
-                            id: "5679",
-                            name: "Samantha Morton",
-                        };
-                    }
-                    else {
-                        throw new Error("Unexpected id: " + args.id);
-                    }    
-                },
-            },
-        };
-
-        const result = await miniql(query, root, {});
-        expect(result).toEqual({
-            movie: {
-                id: "1234",
-                name: "Minority Report",
-                year: 2002,
-                actor: [
-                    {
-                        id: "5678",
-                        name: "Tom Cruise",
-                    },
-                    {
-                        id: "5679",
-                        name: "Samantha Morton",
-                    },
-                ],
-            },
-        });
-    });    
-
-    it("can retrieve multiple nested entities with id from field", async ()  => {
-
-        const query = {
-            get: {
-                movie: {
-                    args: {
-                        id: "1234",
-                    },
-                    resolve: {
-                        actor: {
-                            from: "actorIds",
-                            as: "actors",
+                        actors: {
+                            
                         },
                     },
                 },
             },
         };
 
-        const root = {
+        const root: IQueryResolver = {
             get: {
-                movie: async (args: any, context: any) => {
-                    expect(args.id).toBe("1234");
-    
-                    return {
-                        id: "1234",
-                        name: "Minority Report",
-                        year: 2002,
-                        actorIds: [
-                            { id: "5678" }, //todo:
-                            { id: "5679" }, //todo:
-                        ],
-                    };
-                },
-    
-                actor: async (args: any, context: any) => {
-                    if (args.id === "5678") {
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("1234");
+        
                         return {
-                            id: "5678",
-                            name: "Tom Cruise",
+                            id: "1234",
+                            name: "Minority Report",
+                            year: 2002,
+                            actorIds: [
+                                "5678",
+                                "5679",
+                            ],
                         };
-                    }
-                    else if (args.id === "5679") {
-                        return {
-                            id: "5679",
-                            name: "Samantha Morton",
-                        };
-                    }
-                    else {
-                        throw new Error("Unexpected id: " + args.id);
-                    }    
+                    },
+    
+                    nested: {
+                        actors: {
+                            invoke: async (parent: any, args: any, context: any) => {
+                                expect(parent.actorIds).toEqual([
+                                    "5678",
+                                    "5679",
+                                ]);
+
+                                return [
+                                    {
+                                        id: "5678",
+                                        name: "Tom Cruise",
+                                    },
+                                    {
+                                        id: "5679",
+                                        name: "Samantha Morton",
+                                    },
+                                ];
+                            },
+                        },
+                    },
                 },
             },
         };
@@ -293,58 +248,66 @@ describe("nested entities", () => {
                         name: "Samantha Morton",
                     },
                 ],
+                actorIds: [ //TODO: Be good be good to be able to exclude this.
+                    "5678",
+                    "5679",
+                ],
             },
         });
     });    
 
     it("can retrieve multiple entiites each with a single nested entity", async ()  => {
 
-        const query = {
+        const query: IQuery = {
             get: {
                 movie: {
                     resolve: {
                         director: {
-                            from: "directorId",
-                            as: "director",
                         },
                     },
                 },
             },
         };
 
-        const root = {
+        const root: IQueryResolver = {
             get: {
-                movie: async (args: any, context: any) => {
-                    return [
-                        {
-                            name: "Minority Report",
-                            year: 2002,
-                            directorId: { id: "1234" }, //todo:
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        return [
+                            {
+                                name: "Minority Report",
+                                year: 2002,
+                                directorId: "1234",
+                            },
+                            {
+                                name: "The Bourne Identity",
+                                year: 2002,
+                                directorId: "5678",
+                            },
+                        ];
+                    },
+
+                    nested: {
+                        director: {
+                            invoke: async (parent: any, args: any, context: any) => {
+                                if (parent.directorId === "1234") {
+                                    return {
+                                        id: "1234",
+                                        name: "Steven Spielberg",
+                                    };
+                                }
+                                else if (parent.directorId === "5678") {
+                                    return {
+                                        id: "5678",
+                                        name: "Doug Liman",
+                                    };
+                                }
+                                else {
+                                    throw new Error("Unexpected id: " + parent.directorId);
+                                }
+                            },
                         },
-                        {
-                            name: "The Bourne Identity",
-                            year: 2002,
-                            directorId: { id: "5678" }, //todo:
-                        },
-                    ];
-                },
-    
-                director: async (args: any, context: any) => {
-                    if (args.id === "1234") {
-                        return {
-                            id: "1234",
-                            name: "Steven Spielberg",
-                        };
-                    }
-                    else if (args.id === "5678") {
-                        return {
-                            id: "5678",
-                            name: "Doug Liman",
-                        };
-                    }
-                    else {
-                        throw new Error("Unexpected id: " + args.id);
-                    }    
+                    },
                 },
             },
         };
@@ -359,6 +322,7 @@ describe("nested entities", () => {
                         id: "1234",
                         name: "Steven Spielberg",
                     },
+                    directorId: "1234", // TODO: EXCLUDE
                 },
                 {
                     name: "The Bourne Identity",
@@ -367,6 +331,7 @@ describe("nested entities", () => {
                         id: "5678",
                         name: "Doug Liman",
                     },
+                    directorId: "5678", // TODO: EXCLUDE
                 },
             ],
         });
@@ -374,63 +339,69 @@ describe("nested entities", () => {
 
     it("can retrieve multiple entiites each with multiple nested entities", async ()  => {
 
-        const query = {
+        const query: IQuery = {
             get: {
                 movie: {
                     resolve: {
-                        actor: {
-                            from: "actorIds",
-                            as: "actors",
+                        actors: {
                         },
                     },
                 },
             },
         };
 
-        const root = {
+        const root: IQueryResolver = {
             get: {
-                movie: async (args: any, context: any) => {
-                    return [
-                        {
-                            name: "Minority Report",
-                            year: 2002,
-                            actorIds: [
-                                { id: "1234" }, //todo:
-                                { id: "5678" }, //todo:
-                            ],
-                        },
-                        {
-                            name: "The Bourne Identity",
-                            year: 2002,
-                            actorIds: [
-                                { id: "9123" }, //todo:
-                            ],
-                        },
-                    ];
-                },
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        return [
+                            {
+                                name: "Minority Report",
+                                year: 2002,
+                                actorIds: [
+                                    "1234",
+                                    "5678",
+                                ],
+                            },
+                            {
+                                name: "The Bourne Identity",
+                                year: 2002,
+                                actorIds: [
+                                    "9123",
+                                ],
+                            },
+                        ];
+                    },
     
-                actor: async (args: any, context: any) => {
-                    if (args.id === "1234") {
-                        return {
-                            id: "1234",
-                            name: "Tom Cruise",
-                        };
-                    }
-                    else if (args.id === "5678") {
-                        return {
-                            id: "5678",
-                            name: "Samantha Morton",
-                        };
-                    }
-                    else if (args.id === "9123") {
-                        return {
-                            id: "9123",
-                            name: "Matt Daemon",
-                        };
-                    }
-                    else {
-                        throw new Error("Unexpected id: " + args.id);
-                    }    
+                    nested: {
+                        actors: {
+                            invoke: async (parent: any, args: any, context: any) => {
+                                return parent.actorIds.map((id: string) => {
+                                    if (id === "1234") {
+                                        return {
+                                            id: "1234",
+                                            name: "Tom Cruise",
+                                        };
+                                    }
+                                    else if (id === "5678") {
+                                        return {
+                                            id: "5678",
+                                            name: "Samantha Morton",
+                                        };
+                                    }
+                                    else if (id === "9123") {
+                                        return {
+                                            id: "9123",
+                                            name: "Matt Daemon",
+                                        };
+                                    }
+                                    else {
+                                        throw new Error("Unexpected id: " + id);
+                                    }
+                                });
+                            },
+                        },
+                    },
                 },
             },
         };
@@ -451,6 +422,10 @@ describe("nested entities", () => {
                             name: "Samantha Morton",
                         },
                     ],
+                    actorIds: [
+                        "1234",
+                        "5678",
+                    ],
                 },
                 {
                     name: "The Bourne Identity",
@@ -461,66 +436,61 @@ describe("nested entities", () => {
                             name: "Matt Daemon",
                         },
                     ],
+                    actorIds: [
+                        "9123",
+                    ],
                 },
             ],
         });
     });    
 
-    it("can retrieve multiple nested entities using entity map fn", async ()  => {
+    it("can retrieve multiple nested entities with no explicit ids", async ()  => {
 
-        const query = {
+        const query: IQuery = {
             get: {
                 movie: {
                     args: {
                         id: "1234",
                     },
                     resolve: {
-                        actor: {
-                            as: "actors",
+                        actors: {
                         },
                     },
                 },
             },
         };
 
-        const root = {
+        const root: IQueryResolver = {
             get: {
-                // Find the actors for a particular movie.
-                "movie=>actor": async (args: any, context: any) => {
-                    expect(args.entity.id).toBe("1234");
-
-                    return [
-                        { id: "5678" },
-                        { id: "5679" },
-                    ];
-                },
-
-                movie: async (args: any, context: any) => {
-                    expect(args.id).toBe("1234");
-    
-                    return {
-                        id: "1234",
-                        name: "Minority Report",
-                        year: 2002,
-                    };
-                },
-    
-                actor: async (args: any, context: any) => {
-                    if (args.id === "5678") {
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("1234");
+        
                         return {
-                            id: "5678",
-                            name: "Tom Cruise",
+                            id: "1234",
+                            name: "Minority Report",
+                            year: 2002,
                         };
-                    }
-                    else if (args.id === "5679") {
-                        return {
-                            id: "5679",
-                            name: "Samantha Morton",
-                        };
-                    }
-                    else {
-                        throw new Error("Unexpected id: " + args.id);
-                    }    
+                    },
+
+                    nested: {
+                        actors: {
+                            invoke: async (parent: any, args: any, context: any) => {
+                                expect(parent.id).toBe("1234");
+
+                                return [
+                                    {
+                                        id: "5678",
+                                        name: "Tom Cruise",
+                                    },
+                                    {
+                                        id: "5679",
+                                        name: "Samantha Morton",
+                                    },
+                                ];
+                            },
+                        },
+                    },
                 },
             },
         };
@@ -545,77 +515,13 @@ describe("nested entities", () => {
         });
     });    
 
-    it("error when entity map is not found", async ()  => {
-
-        const query = {
-            get: {
-                movie: {
-                    id: "1234",
-                    resolve: {
-                        actor: {
-                            as: "actors",
-                        },
-                    },
-                },
-            },
-        };
-
-        const root = {
-            query: {
-                // There is no entity map function!
-                //
-                // "movie=>actor": async (query: any, context: any) => {
-                //     expect(query.id).toBe("1234");
-
-                //     return [
-                //         "5678",
-                //         "5679",
-                //     ];
-                // },
-
-                movie: async (args: any, context: any) => {
-                    expect(args.id).toBe("1234");
-    
-                    return {
-                        id: "1234",
-                        name: "Minority Report",
-                        year: 2002,
-                    };
-                },
-    
-                actor: async (args: any, context: any) => {
-                    if (args.id === "5678") {
-                        return {
-                            id: "5678",
-                            name: "Tom Cruise",
-                        };
-                    }
-                    else if (args.id === "5679") {
-                        return {
-                            id: "5679",
-                            name: "Samantha Morton",
-                        };
-                    }
-                    else {
-                        throw new Error("Unexpected id: " + args.id);
-                    }    
-                },
-            },
-        };
-
-        await expect(miniql(query, root, {}))
-            .rejects
-            .toThrow();
-    });
-
-    it("can retrieve multiple entities with multipled nested entities using entity map fn", async ()  => {
+    it("can retrieve multiple entities with multipled nested entities with no explicit ids", async ()  => {
 
         const query = {
             get: {
                 movie: {
                     resolve: {
-                        actor: {
-                            as: "actors",
+                        actors: {
                         },
                     },
                 },
@@ -624,61 +530,51 @@ describe("nested entities", () => {
 
         const root = {
             get: {
-                // Find the actors for a particular movie.
-                "movie=>actor": async (args: any, context: any) => {
-                    if (args.entity.id === "1234") {
+                movie: {
+                    invoke: async (args: any, context: any) => {
                         return [
-                            { id: "2345" }, //TODO:
-                            { id: "3456" }, //todo:
+                            {
+                                id: "1234",
+                                name: "Minority Report",
+                                year: 2002,
+                            },
+                            {
+                                id: "5678",
+                                name: "The Bourne Identity",
+                                year: 2002,
+                            },
                         ];
-                    }
-                    else if (args.entity.id === "5678") {
-                        return [
-                            { id: "4567" }, //todo:
-                        ];
-                    }
-                    else {
-                        throw new Error(`Unexpected movie id ${args.entity.id}.`);
-                    }
-                },
-
-                movie: async (args: any, context: any) => {
-                    return [
-                        {
-                            id: "1234",
-                            name: "Minority Report",
-                            year: 2002,
+                    },
+                    
+                    nested: {
+                        actors: {
+                            invoke: async (parent: any, args: any, context: any) => {
+                                if (parent.id === "1234") {
+                                    return [
+                                        {
+                                            id: "2345",
+                                            name: "Tom Cruise",
+                                        },
+                                        {
+                                            id: "3456",
+                                            name: "Samantha Morton",
+                                        },
+                                    ];
+                                }
+                                else if (parent.id === "5678") {
+                                    return [
+                                        {
+                                            id: "4567",
+                                            name: "Matt Daemon",
+                                        },
+                                    ];
+                                }
+                                else {
+                                    throw new Error(`Unexpected movie id ${parent.id}.`);
+                                }
+                            },
                         },
-                        {
-                            id: "5678",
-                            name: "The Bourne Identity",
-                            year: 2002,
-                        },
-                    ];
-                },
-    
-                actor: async (args: any, context: any) => {
-                    if (args.id === "2345") {
-                        return {
-                            id: "2345",
-                            name: "Tom Cruise",
-                        };
-                    }
-                    else if (args.id === "3456") {
-                        return {
-                            id: "3456",
-                            name: "Samantha Morton",
-                        };
-                    }
-                    else if (args.id === "4567") {
-                        return {
-                            id: "4567",
-                            name: "Matt Daemon",
-                        };
-                    }
-                    else {
-                        throw new Error("Unexpected actor id: " + args.id);
-                    }    
+                    },
                 },
             },
         };
