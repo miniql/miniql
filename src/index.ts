@@ -1,13 +1,61 @@
 import { t } from "typy";
 
 //
+// Represents a nested/related entity to be resovled.
+//
+export interface INestedEntityResolve {
+    [entityTypeName: string]: any; //TODO: This needs to be recursive!B
+}
+
+//
+// Represents a query for a particular entity type.
+//
+export interface IEntityQuery {
+    //
+    // Specifies the type of entity that is being queried for.
+    // If this is omitted the entity type defaults to the query key.
+    //
+    from?: string;
+
+    //
+    // Arguments to pass to the query resolver (the MiniQL backend).
+    //
+    args?: any;
+
+    //
+    // Instructions on what nested/related entities should be resolved.
+    //
+    lookup?: INestedEntityResolve;
+}
+
+//
+// Represents a particular query operation (eg query or update).
+//
+export interface IQueryOperation {
+    //
+    // Sub-queries for each entity.
+    //
+    [queryKey: string]: IEntityQuery;
+}
+
+//
+// Represents a root level query.
+//
+export interface IQuery {
+    //
+    // Sub-queries for each type of operation.
+    //
+    [operationName: string]: IQueryOperation;
+};
+
+//
 // Execute a query.
 //
-export async function miniql(query: any, root: any, context: any): Promise<any> {
+export async function miniql(rootQuery: IQuery, root: any, context: any): Promise<any> {
 
     const output: any = {};
-    const queryOperationName = Object.keys(query)[0]; //TODO: error check! Only one type!
-    const queryOperation = query[queryOperationName];
+    const queryOperationName = Object.keys(rootQuery)[0]; //TODO: error check! Only one type!
+    const queryOperation = rootQuery[queryOperationName];
     const queryOperationResolver = root[queryOperationName];
     if (!queryOperationResolver) {
         throw new Error(createMissingQueryOperationErrorMessage(queryOperationName));
