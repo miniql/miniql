@@ -75,6 +75,62 @@ describe("entity query", () => {
         });
     });
 
+    it("can do multiple operations in a single query", async ()  => {
+
+        const query: IQuery = {
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                },
+            },
+            update: {
+                movie: {
+                    args: {
+                        id: "5678",
+                        params: {
+                            views: 5,
+                        },
+                    },
+                },
+            },
+        };
+
+        const root: IQueryResolver = {
+            get: {
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("1234");
+        
+                        return {
+                            name: "Inception",
+                            year: 2010,
+                        };
+                    },
+                },
+            },
+            update: {
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("5678");
+        
+                        return {
+                            ok: true,
+                        };
+                    },
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(result).toEqual({
+            movie: {
+                ok: true,
+            },
+        });
+    });
+
     it("error when resolver is not found", async ()  => {
 
         const query: IQuery = {

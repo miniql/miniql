@@ -115,18 +115,25 @@ export interface IQueryResolver {
 export async function miniql<T = any>(rootQuery: IQuery, rootResolver: IQueryResolver, context: any): Promise<T> {
 
     const output: any = {};
-    const opName = Object.keys(rootQuery)[0]; //TODO: error check! Only one type!
-    const operationQuery = rootQuery[opName];
-    const operationResolver = rootResolver[opName];
-    if (!operationResolver) {
-        throw new Error(createMissingQueryOperationErrorMessage(opName));
+
+    const opNames = Object.keys(rootQuery); //todo: if more than 1 opName maybe nest output under opname?
+    if (opNames.length <= 0) {
+        throw new Error(`Query doesn't contain any operations.`);
     }
 
-    for (const entityTypeName of Object.keys(operationQuery)) {
-        const entityQuery = operationQuery[entityTypeName]; //TODO: check this is an object!
-        await resolveEntity(entityQuery, output, entityTypeName, { operationResolver, opName, context });
+    for (const opName of opNames) {
+        const operationQuery = rootQuery[opName];
+        const operationResolver = rootResolver[opName];
+        if (!operationResolver) {
+            throw new Error(createMissingQueryOperationErrorMessage(opName));
+        }
+    
+        for (const entityTypeName of Object.keys(operationQuery)) {
+            const entityQuery = operationQuery[entityTypeName]; //TODO: check this is an object!
+            await resolveEntity(entityQuery, output, entityTypeName, { operationResolver, opName, context });
+        }
     }
-
+    
     return output;
 }
 
