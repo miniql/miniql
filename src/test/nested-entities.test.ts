@@ -112,7 +112,7 @@ describe("nested entities", () => {
             .toThrow();
     });
 
-    it("can get one nested entity with id from field", async ()  => {
+    it("error when nested resovle function is missing", async ()  => {
 
         const query: IQuery = {
             get: {
@@ -138,12 +138,55 @@ describe("nested entities", () => {
                             id: "1234",
                             name: "Minority Report",
                             year: 2002,
+                            director: "5678",
+                        };
+                    },
+
+                    nested: {
+                        // -- nested resolver for "director" is missing.
+                    },
+                },
+            },
+        };
+
+        await expect(miniql(query, root, {}))
+            .rejects
+            .toThrow();
+    });
+
+    it("can get one nested entity with id from field", async ()  => {
+
+        const query: IQuery = {
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                    resolve: {
+                        director: {
+                            from: "__director",
+                        },
+                    },
+                },
+            },
+        };
+
+        const root: IQueryResolver = {
+            get: {
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("1234");
+        
+                        return {
+                            id: "1234",
+                            name: "Minority Report",
+                            year: 2002,
                             directorId: "5678",
                         };
                     },
 
                     nested: {
-                        director: {
+                        __director: {
                             invoke: async (parent: any, args: any, context: any) => {
                                 expect(parent.directorId).toBe("5678");
                 
