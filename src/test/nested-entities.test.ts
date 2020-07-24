@@ -64,7 +64,7 @@ describe("nested entities", () => {
                         id: "1234",
                     },
                     resolve: {
-                        director: "--string-is-a-bad-lookup-type--",
+                        director: "--string-is-a-bad-lookup-type--" as any,
                     },
                 },
             },

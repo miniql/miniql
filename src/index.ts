@@ -1,10 +1,16 @@
 import { t } from "typy";
 
+//TODO: replace this.
+export interface INestedEntityDesc {
+    from?: string;
+    as?: string;
+}
+
 //
 // Represents a nested/related entity to be resovled.
 //
 export interface INestedEntityResolve {
-    [entityTypeName: string]: any; //TODO: This needs to be recursive!B
+    [entityTypeName: string]: boolean | INestedEntityDesc; //TODO: This needs to be recursive!B
 }
 
 //
@@ -107,8 +113,8 @@ export async function miniql(rootQuery: IQuery, root: IQueryResolver, context: a
                 let nestedQueryFieldName: string | undefined;
                 let outputFieldName: string;
                 if (t(entityResolve).isObject) {
-                    nestedQueryFieldName = entityResolve.from;
-                    outputFieldName = entityResolve.as || nestedEntityKey;
+                    nestedQueryFieldName = (entityResolve as INestedEntityDesc).from;
+                    outputFieldName = (entityResolve as INestedEntityDesc).as || nestedEntityKey;
                 }
                 else if (entityResolve === true) {
                     nestedQueryFieldName = nestedEntityKey;
