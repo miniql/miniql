@@ -122,33 +122,11 @@ export async function miniql<T = any>(rootQuery: IQuery, rootResolver: IQueryRes
     }
 
     for (const opName of opNames) {
-        const operationQuery = rootQuery[opName];
-        if (!operationQuery) {
-            throw new Error(`Query operation "${opName}" is missing from query.`);
-        }
+        const queryOperation = getQueryOperation(rootQuery, opName);
+        const operationResolver = getOperationResolver(rootResolver, opName);
 
-        if (!t(operationQuery).isObject) {
-            throw new Error(`Expected query resolver for "${opName}" to be an object.`);
-        }
-
-        const operationResolver = rootResolver[opName];
-        if (!operationResolver) {
-            throw new Error(createMissingQueryOperationErrorMessage(opName));
-        }
-
-        if (!t(operationResolver).isObject) {
-            throw new Error(`Expected query resolver for "${opName}" to be an object.`);
-        }
-
-        for (const entityTypeName of Object.keys(operationQuery)) {
-            const entityQuery = operationQuery[entityTypeName];
-            if (!entityQuery) {
-                throw new Error(`Entity query "${entityTypeName}" is missing under operation "${opName}".`);
-            }
-            if (!t(entityQuery).isObject) {
-                throw new Error(`Expected entity query "${entityTypeName}" under operation "${opName}" to be an object.`);
-            }
-            await resolveEntity(entityQuery, output, entityTypeName, { operationResolver, opName, context });
+        for (const entityTypeName of Object.keys(queryOperation)) {
+            await resolveEntity(queryOperation, output, entityTypeName, { operationResolver, opName, context });
         }
     }
     
@@ -175,11 +153,43 @@ interface IQueryGlobals {
     context: any;
 }
 
+function getOperationResolver(rootResolver: IQueryResolver, opName: string) {
+    const operationResolver = rootResolver[opName];
+    if (!operationResolver) {
+        throw new Error(createMissingQueryOperationErrorMessage(opName));
+    }
+
+    if (!t(operationResolver).isObject) {
+        throw new Error(`Expected query resolver for "${opName}" to be an object.`);
+    }
+    return operationResolver;
+}
+
+function getQueryOperation(rootQuery: IQuery, opName: string) {
+    const queryOperation = rootQuery[opName];
+    if (!queryOperation) {
+        throw new Error(`Query operation "${opName}" is missing from query.`);
+    }
+
+    if (!t(queryOperation).isObject) {
+        throw new Error(`Expected query resolver for "${opName}" to be an object.`);
+    }
+    return queryOperation;
+}
+
 //
 // Resolves a root entity.
 //
-async function resolveEntity(entityQuery: IEntityQuery, output: any, entityTypeName: string, queryGlobals: IQueryGlobals) {
+async function resolveEntity(queryOperation: IQueryOperation, output: any, entityTypeName: string, queryGlobals: IQueryGlobals) {
     
+    const entityQuery = queryOperation[entityTypeName];
+    if (!entityQuery) {
+        throw new Error(`Entity query "${entityTypeName}" is missing under operation "${queryGlobals.opName}".`);
+    }
+    if (!t(entityQuery).isObject) {
+        throw new Error(`Expected entity query "${entityTypeName}" under operation "${queryGlobals.opName}" to be an object.`);
+    }
+
     const entityResolverName = entityQuery.from !== undefined ? entityQuery.from : entityTypeName;
     const entityResolver = getEntityResolver(queryGlobals, entityResolverName, entityTypeName);
 
