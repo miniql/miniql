@@ -11,7 +11,7 @@ describe("entity query", () => {
                         id: "1234",
                     },
                 },
-            }
+            },
         };
 
         const root: IQueryResolver = {
@@ -145,7 +145,7 @@ describe("entity query", () => {
                         id: "5678",
                     },
                 },
-            }
+            },
         };
 
         const root: IQueryResolver = {
@@ -202,7 +202,7 @@ describe("entity query", () => {
                         id: "5678",
                     },
                 },
-            }
+            },
         };
 
         const root: IQueryResolver = {
