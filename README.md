@@ -38,7 +38,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
 ## Features
 
 - Decouples the query engine from entity resolution.
-- No type system - use your programming language for that! (e.g. TypeScript)
+- No built-in type system - use your programming language for that! (e.g. TypeScript)
 - Follows relationships and resolves nested entities.
     - You control how the relationships in your data are defined.
 - There is no schema, must like MongoDB.
@@ -58,6 +58,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
     - Whitelisted fields
     - All data, partial data, whatever you want!
 - Optionally alias entities in the output. You control the field names that returned in the query result.
+- Runs in Node.js or the browser.
 
 ## Future
 
