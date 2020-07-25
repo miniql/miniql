@@ -262,7 +262,7 @@ async function resolveNestedEntity(nestedEntityQuery: IEntityQuery, parentEntity
     //
     // Resolve this entity.
     //
-    const resolvedEntity = await nestedEntityResolver.invoke(parentEntity, nestedEntityQuery.args || {}, queryGlobals.context); //TODO: Do these in parallel. TODO: error check that invoke fn exists.
+    const resolvedEntity = await nestedEntityResolver.invoke(parentEntity, nestedEntityQuery.args || {}, queryGlobals.context); //TODO: Do these in parallel.
 
     //
     // Plug the resolved entity into the query result.
