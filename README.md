@@ -10,7 +10,12 @@ Sound interesting? Please star this repo.
 
 Follow the developer on Twitter for updates: [@ashleydavis75](https://twitter.com/ashleydavis75).
 
-Documentation and examples will come.
+Documentation and more examples will come soon.
+
+## First example 
+
+The first MiniQL example is live here:
+https://github.com/miniql/miniql-csv-example
 
 
 ## Motivation
