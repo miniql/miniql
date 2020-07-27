@@ -1,6 +1,6 @@
 # miniql
 
-A tiny JSON query language inspired by GraphQL.
+A tiny JSON-based query language inspired by GraphQL
 
 WORK IN PROGRESS
 
@@ -12,11 +12,19 @@ Follow the developer on Twitter for updates: [@ashleydavis75](https://twitter.co
 
 Documentation and more examples will come soon.
 
-## First example 
+## Examples
 
-The first MiniQL example is live here:
+### Node.js + CSV files
+
+Here is an example of making MiniQL queries against a CSV file dataset under Node.js:
+
 https://github.com/miniql/miniql-csv-example
 
+## JavaScript notebook
+
+Here is an easy to read MiniQL example in a JavaScript notebook
+
+https://miniql.github.io/notebook-example/
 
 ## Motivation
 
