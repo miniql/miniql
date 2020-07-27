@@ -1,6 +1,6 @@
 {
     "name": "miniql",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "A tiny JSON-based query language inspired by GraphQL",
     "main": "build/index.js",
     "types": "build/index.d.ts",
@@ -29,7 +29,18 @@
         "type": "git",
         "url": "git+https://miniql@github.com/miniql/miniql.git"
     },
-    "keywords": [],
+    "keywords": [
+        "graphql",
+        "query",
+        "queries",
+        "query language",
+        "javascript",
+        "typescript",
+        "json",
+        "data",
+        "data science",
+        "data analysis"
+    ],
     "author": "ashley@codecapers.com.au",
     "license": "MIT",
     "bugs": {
