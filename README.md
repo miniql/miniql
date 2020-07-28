@@ -6,7 +6,7 @@ WORK IN PROGRESS
 
 Pronounced "miniquel", similar to "miniscule".
 
-Sound interesting? Please star this repo.
+Love this? Please star this repo!
 
 Follow the developer on Twitter for updates: [@ashleydavis75](https://twitter.com/ashleydavis75).
 
@@ -89,3 +89,5 @@ GraphQL is awesome, but sometimes the following can be annoying...
 ## Wishlist
 
 - Parallelise complex queries over multiple nodes.
+
+Don't forget to star this repo and [follow the developer on Twitter](https://twitter.com/ashleydavis75).
