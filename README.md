@@ -12,13 +12,20 @@ Follow the developer on Twitter for updates: [@ashleydavis75](https://twitter.co
 
 Documentation and more examples will come soon.
 
-## Examples
+# Examples
 
-### Node.js + CSV files
+## Node.js + CSV files
 
 Here is an example of making MiniQL queries against a CSV file dataset under Node.js:
 
 https://github.com/miniql/miniql-csv-example
+
+## Node.js + JSON files
+
+Here is an example of making MiniQL queries against a JSON file dataset under Node.js:
+
+https://github.com/miniql/miniql-json-example
+
 
 ## JavaScript notebook
 
@@ -26,7 +33,17 @@ Here is an easy to read MiniQL example in a JavaScript notebook
 
 https://miniql.github.io/notebook-example/
 
-## Motivation
+## Express + MongoDB
+
+Here is an example of using MiniQL to make queries against a MonogDB database through an Express REST API to display query results in the frontend.
+
+https://github.com/miniql/miniql-express-mongodb-example
+
+## Interactive data explorer
+
+Stay tuned! I'm currently working on an interactive demonstration of MiniQL.
+
+# Motivation
 
 GraphQL is awesome, but sometimes the following can be annoying...
 
@@ -37,7 +54,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - It's tedious to have to specify everything you want returned.
     - Sometimes you just want everything returned! Especially when you are exploring your data!
 
-## Aims
+# Aims
 
 - To be tiny, yet flexible.
 - To easily create queries and implement the backend.
@@ -48,7 +65,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - To not imposed unececssary structure or rules on your data!
 - Make the most of the backend capabilities (eg search and filtering capability in MongoDB).
 
-## Features
+# Features
 
 - Decouples the query engine from entity resolution.
 - No built-in type system - use your programming language for that! (e.g. TypeScript)
@@ -73,7 +90,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - Optionally alias entities in the output. You control the field names that returned in the query result.
 - Runs in Node.js or the browser.
 
-## Future
+# Future
 
 - Data versioning.
 - Add a configurable MongoDB resolver.
@@ -86,7 +103,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - Built-in filtering?
 - How to retreieve a count after search/filtering is applied.
 
-## Wishlist
+# Wishlist
 
 - Parallelise complex queries over multiple nodes.
 
