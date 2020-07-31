@@ -62,6 +62,62 @@ describe("nested entities", () => {
         });
     });
 
+    it("getting a nested entity doesn't modify source entity", async ()  => {
+
+        const query: IQuery = {
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                    resolve: {
+                        director: {
+                        },
+                    },
+                },
+            },
+        };
+
+        const sourceEntity = {
+            id: "1234",
+            name: "Minority Report",
+            year: 2002,
+            director: "5678",
+        };
+
+        const root: IQueryResolver = {
+            get: {
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("1234");
+        
+                        return sourceEntity;
+                    },
+
+                    nested: {
+                        director: {
+                            invoke: async (parent: any, args: any, context: any) => {
+                                expect(parent.director).toBe("5678");
+
+                                return {
+                                    id: "5678",
+                                    name: "Steven Spielberg",
+                                };
+                            },
+                        },
+                    },
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(sourceEntity.director).toEqual("5678");
+        expect(result.movie.director).toEqual({
+            id: "5678",
+            name: "Steven Spielberg",
+        });
+    });
+
     it("can get one nested entity with id from field", async ()  => {
 
         const query: IQuery = {

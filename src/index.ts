@@ -197,16 +197,19 @@ async function resolveEntity(queryOperation: IQueryOperation, output: any, entit
     // Resolve this entity.
     //
     const resolvedEntity = await entityResolver.invoke(entityQuery.args || {}, queryGlobals.context); //TODO: Do these in parallel.
+    const clonedEntity = t(resolvedEntity).isArray // Clone entity so it can be modified.
+        ? resolvedEntity.map((singleEntity: any) => Object.assign({}, singleEntity))
+        : Object.assign({}, resolvedEntity); 
 
     //
     // Plug the resolved entity into the query result.
     //
-    output[entityTypeName] = resolvedEntity;
+    output[entityTypeName] = clonedEntity;
 
     //
     // Resolve nested entities.
     //
-    await resolveNestedEntities(entityQuery, resolvedEntity, entityResolverName, entityTypeName, queryGlobals);
+    await resolveNestedEntities(entityQuery, clonedEntity, entityResolverName, entityTypeName, queryGlobals);
 }
 
 //
@@ -273,16 +276,19 @@ async function resolveNestedEntity(nestedEntityQuery: IEntityQuery, parentEntity
     // Resolve this entity.
     //
     const resolvedEntity = await nestedEntityResolver.invoke(parentEntity, nestedEntityQuery.args || {}, queryGlobals.context); //TODO: Do these in parallel.
+    const clonedEntity = t(resolvedEntity).isArray // Clone entity so it can be modified.
+        ? resolvedEntity.map((singleEntity: any) => Object.assign({}, singleEntity))
+        : Object.assign({}, resolvedEntity); 
 
     //
     // Plug the resolved entity into the query result.
     //
-    parentEntity[nestedEntityTypeName] = resolvedEntity;
+    parentEntity[nestedEntityTypeName] = clonedEntity;
 
     //
     // Resolve nested entities.
     //
-    await resolveNestedEntities(nestedEntityQuery, resolvedEntity, nestedEntityResolverName, nestedEntityTypeName, queryGlobals);
+    await resolveNestedEntities(nestedEntityQuery, clonedEntity, nestedEntityResolverName, nestedEntityTypeName, queryGlobals);
 }
 
 
