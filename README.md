@@ -35,7 +35,7 @@ https://miniql.github.io/notebook-example/
 
 ## Express + MongoDB
 
-Here is an example of using MiniQL to make queries against a MonogDB database through an Express REST API to display query results in the frontend.
+Here is an example of using MiniQL to make queries against a MongoDB database through an Express REST API to display query results in the frontend.
 
 https://github.com/miniql/miniql-express-mongodb-example
 
@@ -57,12 +57,13 @@ GraphQL is awesome, but sometimes the following can be annoying...
 # Aims
 
 - To be tiny, yet flexible.
-- To easily create queries and implement the backend.
-- To have a single query / update point where auth can be implemented.
+- To easily create queries.
+- To easily implement the backend.
+- To have a single query end point where auth can be implemented.
 - To avoid having many separate REST APIs.
 - To be able to retreive aggregate and optimized data to the front end.
 - To be able to easily explore your data.
-- To not imposed unececssary structure or rules on your data!
+- To not impose unecessary structure or rules on your data!
 - Make the most of the backend capabilities (eg search and filtering capability in MongoDB).
 
 # Features
@@ -71,7 +72,8 @@ GraphQL is awesome, but sometimes the following can be annoying...
 - No built-in type system - use your programming language for that! (e.g. TypeScript)
 - Follows relationships and resolves nested entities.
     - You control how the relationships in your data are defined.
-- There is no schema, must like MongoDB.
+- There is no enforced schema, just like MongoDB.
+- Aggregate query results from different data sources.
 - Different types of operations.
     - The MiniQL convertion is use "query" or "update" operations.
     - But you can use whatever names you like.
@@ -88,7 +90,7 @@ GraphQL is awesome, but sometimes the following can be annoying...
     - Whitelisted fields
     - All data, partial data, whatever you want!
 - Optionally alias entities in the output. You control the field names that returned in the query result.
-- Runs in Node.js or the browser.
+- It works in both Node.js and the browser.
 
 # Future
 
