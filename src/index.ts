@@ -1,5 +1,4 @@
 import { t } from "typy";
-import { networkInterfaces } from "os";
 
 //
 // Represents a nested/related entity to be resovled.
@@ -110,30 +109,6 @@ export interface IQueryResolver {
 }
 
 //
-// Execute a query.
-//
-export async function miniql<T = any>(rootQuery: IQuery, rootResolver: IQueryResolver, context: any): Promise<T> {
-
-    const output: any = {};
-
-    const opNames = Object.keys(rootQuery); //todo: if more than 1 opName maybe nest output under opname?
-    if (opNames.length <= 0) {
-        throw new Error(`Query doesn't contain any operations.`);
-    }
-
-    for (const opName of opNames) {
-        const queryOperation = getQueryOperation(rootQuery, opName);
-        const operationResolver = getOperationResolver(rootResolver, opName);
-
-        for (const entityTypeName of Object.keys(queryOperation)) {
-            await resolveEntity(queryOperation, output, entityTypeName, { operationResolver, opName, context });
-        }
-    }
-    
-    return output;
-}
-
-//
 //  Container for globals passed recursively through the query process.
 //
 interface IQueryGlobals {
@@ -153,6 +128,46 @@ interface IQueryGlobals {
     context: any;
 }
 
+//
+// Logs a verbose message.
+//
+function verbose(verbose: boolean, nestingLevel: number, msg: any) {
+    if (verbose) {
+        console.log(" ".repeat(nestingLevel*4) + msg);
+    }
+}
+
+//
+// Executes a query.
+//
+export async function miniql<T = any>(rootQuery: IQuery, rootResolver: IQueryResolver, context: any): Promise<T> {
+
+    const output: any = {};
+
+    const opNames = Object.keys(rootQuery); //todo: if more than 1 opName maybe nest output under opname?
+    if (opNames.length <= 0) {
+        throw new Error(`Query doesn't contain any operations.`);
+    }
+    
+    verbose(context.verbose, 0, `** Executing query.`);
+
+    for (const opName of opNames) {
+        verbose(context.verbose, 1, `= Invoking query operation "${opName}".`);
+
+        const queryOperation = getQueryOperation(rootQuery, opName);
+        const operationResolver = getOperationResolver(rootResolver, opName);
+
+        for (const entityTypeName of Object.keys(queryOperation)) {
+            await resolveRootEntity(queryOperation, output, entityTypeName, { operationResolver, opName, context }, 2);
+        }
+    }
+    
+    return output;
+}
+
+//
+// Gets an operation resolver from a query with error checkign.
+//
 function getOperationResolver(rootResolver: IQueryResolver, opName: string) {
     const operationResolver = rootResolver[opName];
     if (!operationResolver) {
@@ -165,6 +180,9 @@ function getOperationResolver(rootResolver: IQueryResolver, opName: string) {
     return operationResolver;
 }
 
+//
+// Gets query operation from a query with some error checking.
+//
 function getQueryOperation(rootQuery: IQuery, opName: string) {
     const queryOperation = rootQuery[opName];
     if (!queryOperation) {
@@ -180,7 +198,9 @@ function getQueryOperation(rootQuery: IQuery, opName: string) {
 //
 // Resolves a root entity.
 //
-async function resolveEntity(queryOperation: IQueryOperation, output: any, entityTypeName: string, queryGlobals: IQueryGlobals) {
+async function resolveRootEntity(queryOperation: IQueryOperation, output: any, entityTypeName: string, queryGlobals: IQueryGlobals, nestingLevel: number) {
+
+    verbose(queryGlobals.context.verbose, nestingLevel, `= Resolving root entity "${entityTypeName}".`);
     
     const entityQuery = queryOperation[entityTypeName];
     if (!entityQuery) {
@@ -191,13 +211,22 @@ async function resolveEntity(queryOperation: IQueryOperation, output: any, entit
     }
 
     const entityResolverName = entityQuery.from !== undefined ? entityQuery.from : entityTypeName;
-    const entityResolver = getEntityResolver(queryGlobals, entityResolverName, entityTypeName);
+    const entityResolver = getGlobalEntityResolver(queryGlobals, entityResolverName, entityTypeName, "query result", nestingLevel+1);
 
     //
     // Resolve this entity.
     //
     const resolvedEntity = await entityResolver.invoke(entityQuery.args || {}, queryGlobals.context); //TODO: Do these in parallel.
-    const clonedEntity = t(resolvedEntity).isArray // Clone entity so it can be modified.
+
+    const isArray = t(resolvedEntity).isArray;
+    if (isArray) {
+        verbose(queryGlobals.context.verbose, nestingLevel+1, `Resolved an array of entities.`);
+    }
+    else {
+        verbose(queryGlobals.context.verbose, nestingLevel+1, `Resolved a single entity.`);
+    }
+
+    const clonedEntity = isArray // Clone entity so it can be modified.
         ? resolvedEntity.map((singleEntity: any) => Object.assign({}, singleEntity))
         : Object.assign({}, resolvedEntity); 
 
@@ -209,16 +238,19 @@ async function resolveEntity(queryOperation: IQueryOperation, output: any, entit
     //
     // Resolve nested entities.
     //
-    await resolveNestedEntities(entityQuery, clonedEntity, entityResolverName, entityTypeName, queryGlobals);
+    await resolveNestedEntities(entityQuery, clonedEntity, entityResolverName, entityTypeName, queryGlobals, nestingLevel+2);
 }
 
 //
 // Gets the resolver for a particular entity type.
 //
-function getEntityResolver(queryGlobals: IQueryGlobals, entityResolverName: string, entityTypeName: string) {
+function getGlobalEntityResolver(queryGlobals: IQueryGlobals, entityResolverName: string, entityTypeName: string, outputLocation: string, nestingLevel: number): IEntityQueryResolver {
+
+    verbose(queryGlobals.context.verbose, nestingLevel, `Getting global entity resolver "${entityResolverName}" to resolve entity type "${entityTypeName}".`);
+
     const entityResolver = queryGlobals.operationResolver[entityResolverName];
     if (!entityResolver) {
-        throw new Error(createMissingResolverErrorMessage(queryGlobals.opName, entityTypeName, entityTypeName));
+        throw new Error(createMissingGlobalResolverErrorMessage(queryGlobals.opName, entityTypeName, entityTypeName, outputLocation));
     }
 
     if (!entityResolver.invoke) {
@@ -234,7 +266,7 @@ function getEntityResolver(queryGlobals: IQueryGlobals, entityResolverName: stri
 //
 // Resolve nested entities for an entity.
 //
-async function resolveNestedEntities(entityQuery: IEntityQuery, parentEntity: any, parentEntityResolverName: string, parentEntityTypeName: string, queryGlobals: IQueryGlobals) {
+async function resolveNestedEntities(entityQuery: IEntityQuery, parentEntity: any, parentEntityGlobalResolverName: string, parentEntityTypeName: string, queryGlobals: IQueryGlobals, nestingLevel: number) {
     if (entityQuery.resolve) {
         //
         // Resolve nested entities.
@@ -246,11 +278,11 @@ async function resolveNestedEntities(entityQuery: IEntityQuery, parentEntity: an
             }
             if (t(parentEntity).isArray) {
                 await Promise.all(parentEntity.map((singleEntity: any) => {
-                    return resolveNestedEntity(nestedEntityQuery, singleEntity, parentEntityResolverName, parentEntityTypeName, nestedEntityTypeName, queryGlobals);
+                    return resolveNestedEntity(nestedEntityQuery, singleEntity, parentEntityGlobalResolverName, parentEntityTypeName, nestedEntityTypeName, queryGlobals, nestingLevel);
                 }));
             }
             else {
-                await resolveNestedEntity(nestedEntityQuery, parentEntity, parentEntityResolverName, parentEntityTypeName, nestedEntityTypeName, queryGlobals);
+                await resolveNestedEntity(nestedEntityQuery, parentEntity, parentEntityGlobalResolverName, parentEntityTypeName, nestedEntityTypeName, queryGlobals, nestingLevel);
             }
         }
     }
@@ -259,17 +291,23 @@ async function resolveNestedEntities(entityQuery: IEntityQuery, parentEntity: an
 //
 // Resolves a nested entity.
 //
-async function resolveNestedEntity(nestedEntityQuery: IEntityQuery, parentEntity: any, parentEntityResolverName: string, parentEntityTypeName: string, nestedEntityTypeName: string, queryGlobals: IQueryGlobals): Promise<void> {
-    
-    const parentEntityResolver = getEntityResolver(queryGlobals, parentEntityResolverName, parentEntityTypeName);
-    const nestedEntityResolverName = nestedEntityQuery.from !== undefined ? nestedEntityQuery.from : nestedEntityTypeName;
+async function resolveNestedEntity(nestedEntityQuery: IEntityQuery, parentEntity: any, parentEntityGlobalResolverName: string, parentEntityTypeName: string, nestedEntityTypeName: string, queryGlobals: IQueryGlobals, nestingLevel: number): Promise<void> {
+
+    verbose(queryGlobals.context.verbose, nestingLevel, `= Resolving nested entity "${nestedEntityTypeName}".`);
+
+    //
+    // Get the global resolver for the parent entity.
+    //
+    const parentEntityResolver = getGlobalEntityResolver(queryGlobals, parentEntityGlobalResolverName, parentEntityTypeName, `parent entity "${parentEntityTypeName}"`, nestingLevel + 1);
+
+    const nestedEntityLocalResolverName = nestedEntityQuery.from !== undefined ? nestedEntityQuery.from : nestedEntityTypeName;
     if (!parentEntityResolver.nested) {
-        throw new Error(`Failed to find nested resolvers for operation "${queryGlobals.opName}" for nested entity "${nestedEntityResolverName}" under "${parentEntityResolverName}".`); //TODO: flesh out this error msg.
+        throw new Error(`Failed to find nested resolvers for operation "${queryGlobals.opName}" for nested entity "${nestedEntityLocalResolverName}" under "${parentEntityGlobalResolverName}".`); //TODO: flesh out this error msg.
     }
 
-    const nestedEntityResolver = parentEntityResolver.nested[nestedEntityResolverName];
+    const nestedEntityResolver = parentEntityResolver.nested[nestedEntityLocalResolverName];
     if (nestedEntityResolver === undefined) {
-        throw new Error(`Failed to find resolver for operation "${queryGlobals.opName}" for nested entity "${nestedEntityResolverName}" under "${parentEntityResolverName}" outputting to "${nestedEntityQuery}".`); //TODO: flesh out this error msg.
+        throw new Error(`Failed to find nested resolver for operation "${queryGlobals.opName}" for nested entity "${nestedEntityLocalResolverName}" under "${parentEntityGlobalResolverName}".`); //TODO: flesh out this error msg.
     }
 
     //
@@ -288,9 +326,8 @@ async function resolveNestedEntity(nestedEntityQuery: IEntityQuery, parentEntity
     //
     // Resolve nested entities.
     //
-    await resolveNestedEntities(nestedEntityQuery, clonedEntity, nestedEntityResolverName, nestedEntityTypeName, queryGlobals);
+    await resolveNestedEntities(nestedEntityQuery, clonedEntity, nestedEntityLocalResolverName, nestedEntityTypeName, queryGlobals, nestingLevel+2);
 }
-
 
 //
 // Creates an error message for a missing query operation.
@@ -310,11 +347,11 @@ You must define a query resolver that looks like this:
 }
 
 //
-// Creates an error message for a missing resolver.
+// Creates an error message for a missing global resolver.
 //
-function createMissingResolverErrorMessage(opName: any, entityTypeName: any, queryKey: string): string {
+function createMissingGlobalResolverErrorMessage(opName: any, entityTypeName: any, queryKey: string, outputLocation: string): string {
     return `
-Failed to find resolver for operation "${opName}" for entity "${entityTypeName}" outputting to "${queryKey}".\n
+Failed to find global resolver for entity "${entityTypeName}" of operation "${opName}", outputting to "${queryKey}" in ${outputLocation}.\n
 You must define a query resolver that looks like this:
     const root = {
         ${opName}: {
