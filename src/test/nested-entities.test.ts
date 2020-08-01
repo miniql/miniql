@@ -76,7 +76,7 @@ describe("nested entities", () => {
                                 hometown: {
 
                                 },
-                            }
+                            },
                         },
                     },
                 },
@@ -166,7 +166,7 @@ describe("nested entities", () => {
                                 hometown: {
 
                                 },
-                            }
+                            },
                         },
                     },
                 },
