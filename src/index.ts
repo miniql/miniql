@@ -15,8 +15,8 @@ export interface INestedEntityResolve {
 //
 export interface IEntityQuery {
     //
-    // Specifies the type of entity that is being queried for.
-    // If this is omitted the entity type defaults to the query key.
+    // The name of the global entity resolver to invoke to get the entity.
+    // If this is omitted the entity resolver name defaults to the entity name.
     //
     from?: string;
 
@@ -55,6 +55,12 @@ export interface IQuery {
 // Represents a resolver for a nested entity.
 //
 export interface INestedEntityResolver {
+    //
+    // The name of the global entity resolver for this nested entity relates to (if any).
+    // When this omitted the nested entity name is used as the name of the global entity resolver.
+    // 
+    from?: string;
+
     //
     // User-defined function that can get retreive a set of entities related to the parent entity.
     //
@@ -324,10 +330,16 @@ async function resolveNestedEntity(nestedEntityQuery: IEntityQuery, parentEntity
     parentEntity[nestedEntityTypeName] = clonedEntity;
 
     //
+    // Find the global name of the local entity resolver.
+    //
+    const nestedEntityGlobalResolverName = nestedEntityResolver.from || nestedEntityLocalResolverName;
+
+    //
     // Resolve nested entities.
     //
-    await resolveNestedEntities(nestedEntityQuery, clonedEntity, nestedEntityLocalResolverName, nestedEntityTypeName, queryGlobals, nestingLevel+2);
+    await resolveNestedEntities(nestedEntityQuery, clonedEntity, nestedEntityGlobalResolverName, nestedEntityTypeName, queryGlobals, nestingLevel+2);
 }
+
 
 //
 // Creates an error message for a missing query operation.
