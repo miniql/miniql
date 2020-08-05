@@ -177,7 +177,7 @@ export async function miniql<T = any>(rootQuery: IQuery, rootResolver: IQueryRes
 function getOperationResolver(rootResolver: IQueryResolver, opName: string) {
     const operationResolver = rootResolver[opName];
     if (!operationResolver) {
-        throw new Error(createMissingQueryOperationErrorMessage(opName));
+        throw new Error(createErrorForMissingQueryOperation(opName));
     }
 
     if (!t(operationResolver).isObject) {
@@ -256,15 +256,15 @@ function getGlobalEntityResolver(queryGlobals: IQueryGlobals, entityResolverName
 
     const entityResolver = queryGlobals.operationResolver[entityResolverName];
     if (!entityResolver) {
-        throw new Error(createMissingGlobalResolverErrorMessage(queryGlobals.opName, entityTypeName, entityTypeName, outputLocation));
+        throw new Error(createErrorForMissingGlobalResolver(queryGlobals.opName, entityResolverName, entityTypeName, outputLocation));
     }
 
     if (!entityResolver.invoke) {
-        throw new Error(`Entity resolver "${entityTypeName}" is missing an "invoke" function.`);
+        throw new Error(createErrorForMissingInvoke(queryGlobals.opName, entityResolverName, entityTypeName, outputLocation));
     }
 
     if (!t(entityResolver.invoke).isFunction) {
-        throw new Error(`Expected "invoke" function for entity resolver "${entityTypeName}" is to be a function.`);
+        throw new Error(createErrorForInvokeNotAFn(queryGlobals.opName, entityResolverName, entityTypeName, outputLocation));
     }
     return entityResolver;
 }
@@ -344,7 +344,7 @@ async function resolveNestedEntity(nestedEntityQuery: IEntityQuery, parentEntity
 //
 // Creates an error message for a missing query operation.
 //
-function createMissingQueryOperationErrorMessage(opName: string): string | undefined {
+function createErrorForMissingQueryOperation(opName: string): string {
     return `
 Query operation "${opName}" is not supported by the resolver.
 You must define a query resolver that looks like this:
@@ -361,19 +361,51 @@ You must define a query resolver that looks like this:
 //
 // Creates an error message for a missing global resolver.
 //
-function createMissingGlobalResolverErrorMessage(opName: any, entityTypeName: any, queryKey: string, outputLocation: string): string {
+function createErrorForMissingGlobalResolver(opName: string, entityResolverName: string, entityTypeName: string, outputLocation: string): string {
     return `
-Failed to find global resolver for entity "${entityTypeName}" of operation "${opName}", outputting to "${queryKey}" in ${outputLocation}.\n
-You must define a query resolver that looks like this:
+Failed to find global resolver for entity "${entityResolverName}" of operation "${opName}", outputting to "${entityTypeName}" in ${outputLocation}.\n
+You must define a query resolver that looks like this:\n` +
+    createResolverExample(opName, entityResolverName);
+}
+
+//
+// Creates an error message for a missing invoke function.
+//
+function createErrorForMissingInvoke(opName: string, entityResolverName: string, entityTypeName: string, outputLocation: string): string {
+    return `
+Failed to find invoke function for entity "${entityResolverName}" of operation "${opName}", outputting to "${entityTypeName}" in ${outputLocation}.\n
+You must define a query resolver that looks like this:\n` + 
+    createResolverExample(opName, entityResolverName);
+}
+
+//
+// Creates an error message for when the supplied "invoke" function is not a function.
+//
+function createErrorForInvokeNotAFn(opName: string, entityResolverName: string, entityTypeName: string, outputLocation: string): string {
+    return `
+Expected "invoke" function for entity resolver "${entityTypeName}" is to be a function.
+You must define a query resolver that looks like this:\n` + 
+    createResolverExample(opName, entityResolverName);
+}
+
+
+//
+// Create an example query resolver.
+//
+function createResolverExample(opName: string, entityResolverName: string) {
+    return `
     const root = {
         ${opName}: {
-            ${entityTypeName}: async function (args, context) => {
-                if (args.something) {
-                    // ... Return a single entity that matches 'something'.
-                }
-                else {
-                    // ... Return the set of entities (you probably want to use pagination).
-                }
+            ${entityResolverName}: {
+                invoke: async function (args, context) => {
+                    if (args.something) {
+                        // ... Return or update a single entity that matches 'something'.
+                    }
+                    else {
+                        // ... Return the set of entities (you probably want to use pagination).
+                        // ... Or insert an entity.
+                    }
+                },
             },
 
             // ... Other resolvers go here.
@@ -383,3 +415,4 @@ You must define a query resolver that looks like this:
     };
 `;
 }
+

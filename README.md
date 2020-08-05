@@ -69,10 +69,12 @@ GraphQL is awesome, but sometimes the following can be annoying...
 # Features
 
 - Decouples the query engine from entity resolution.
-- No built-in type system - use your programming language for that! (e.g. TypeScript)
+- There is no enforced schema, just like MongoDB. But you can make your own using [JSON schema](https://json-schema.org/).
+- There is no built-in type system - use your programming language for that! (e.g. TypeScript)
+- The query language is JSON and can easily be sent over the weire.
+- The results are JSON and can easiy be received over the wire.
 - Follows relationships and resolves nested entities.
     - You control how the relationships in your data are defined.
-- There is no enforced schema, just like MongoDB.
 - Aggregate query results from different data sources.
 - Different types of operations.
     - The MiniQL convertion is use "query" or "update" operations.
