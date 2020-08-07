@@ -14,6 +14,16 @@ Documentation and more examples will come soon.
 
 # Examples
 
+## Interactive example
+
+There's an interactive browser-only example of MiniQL here:
+
+https://miniql.github.io/miniql-interactive-example/
+
+You fnd find the code for it here:
+
+https://github.com/miniql/miniql-interactive-example
+    
 ## Node.js + CSV files
 
 Here is an example of making MiniQL queries against a CSV file dataset under Node.js:
@@ -38,10 +48,6 @@ https://miniql.github.io/notebook-example/
 Here is an example of using MiniQL to make queries against a MongoDB database through an Express REST API to display query results in the frontend.
 
 https://github.com/miniql/miniql-express-mongodb-example
-
-## Interactive data explorer
-
-Stay tuned! I'm currently working on an interactive demonstration of MiniQL.
 
 # Motivation
 
