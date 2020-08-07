@@ -10,7 +10,7 @@ Follow the developer on Twitter for updates: [@ashleydavis75](https://twitter.co
 
 Documentation and more examples will come soon.
 
-New to this? Check out the examples below or jump to [getting started](#getting_started).
+New to this? Check out the examples below or jump to [getting started](#getting-started).
 
 For a quick idea of what queries look like and how they work, jump straight into [the interactive example](https://miniql.github.io/miniql-interactive-example/).
 
