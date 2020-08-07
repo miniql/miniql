@@ -223,28 +223,38 @@ async function resolveRootEntity(queryOperation: IQueryOperation, output: any, e
     // Resolve this entity.
     //
     const resolvedEntity = await entityResolver.invoke(entityQuery.args || {}, queryGlobals.context); //TODO: Do these in parallel.
+    const entityWasResolved = !(resolvedEntity === null || resolvedEntity === undefined);
 
-    const isArray = t(resolvedEntity).isArray;
-    if (isArray) {
-        verbose(queryGlobals.context.verbose, nestingLevel+1, `Resolved an array of entities.`);
+    if (entityWasResolved) {
+       if (t(resolvedEntity).isArray) {
+            verbose(queryGlobals.context.verbose, nestingLevel+1, `Resolved an array of entities.`);
+        }
+        else {
+            verbose(queryGlobals.context.verbose, nestingLevel+1, `Resolved a single entity.`);
+        }
     }
     else {
-        verbose(queryGlobals.context.verbose, nestingLevel+1, `Resolved a single entity.`);
+        verbose(queryGlobals.context.verbose, nestingLevel+1, `No entity was resovled.`);
     }
 
-    const clonedEntity = isArray // Clone entity so it can be modified.
-        ? resolvedEntity.map((singleEntity: any) => Object.assign({}, singleEntity))
-        : Object.assign({}, resolvedEntity); 
+    const clonedEntity = 
+        entityWasResolved
+            ? t(resolvedEntity).isArray // Clone entity so it can be modified.
+                ? resolvedEntity.map((singleEntity: any) => Object.assign({}, singleEntity))
+                : Object.assign({}, resolvedEntity)
+            : resolvedEntity;
 
     //
     // Plug the resolved entity into the query result.
     //
     output[entityTypeName] = clonedEntity;
 
-    //
-    // Resolve nested entities.
-    //
-    await resolveNestedEntities(entityQuery, clonedEntity, entityResolverName, entityTypeName, queryGlobals, nestingLevel+2);
+    if (entityWasResolved) {
+        //
+        // Resolve nested entities.
+        //
+        await resolveNestedEntities(entityQuery, clonedEntity, entityResolverName, entityTypeName, queryGlobals, nestingLevel+2);
+    }
 }
 
 //
@@ -320,24 +330,43 @@ async function resolveNestedEntity(nestedEntityQuery: IEntityQuery, parentEntity
     // Resolve this entity.
     //
     const resolvedEntity = await nestedEntityResolver.invoke(parentEntity, nestedEntityQuery.args || {}, queryGlobals.context); //TODO: Do these in parallel.
-    const clonedEntity = t(resolvedEntity).isArray // Clone entity so it can be modified.
-        ? resolvedEntity.map((singleEntity: any) => Object.assign({}, singleEntity))
-        : Object.assign({}, resolvedEntity); 
+    const entityWasResolved = !(resolvedEntity === null || resolvedEntity === undefined);
+
+    if (entityWasResolved) {
+       if (t(resolvedEntity).isArray) {
+            verbose(queryGlobals.context.verbose, nestingLevel+1, `Resolved an array of nested entities.`);
+        }
+        else {
+            verbose(queryGlobals.context.verbose, nestingLevel+1, `Resolved a single nested entity.`);
+        }
+    }
+    else {
+        verbose(queryGlobals.context.verbose, nestingLevel+1, `No nested entity was resovled.`);
+    }
+
+    const clonedEntity = 
+        entityWasResolved
+            ? t(resolvedEntity).isArray // Clone entity so it can be modified.
+                ? resolvedEntity.map((singleEntity: any) => Object.assign({}, singleEntity))
+                : Object.assign({}, resolvedEntity)
+            : resolvedEntity;
 
     //
     // Plug the resolved entity into the query result.
     //
     parentEntity[nestedEntityTypeName] = clonedEntity;
 
-    //
-    // Find the global name of the local entity resolver.
-    //
-    const nestedEntityGlobalResolverName = nestedEntityResolver.from || nestedEntityLocalResolverName;
-
-    //
-    // Resolve nested entities.
-    //
-    await resolveNestedEntities(nestedEntityQuery, clonedEntity, nestedEntityGlobalResolverName, nestedEntityTypeName, queryGlobals, nestingLevel+2);
+    if (entityWasResolved) {
+        //
+        // Find the global name of the local entity resolver.
+        //
+        const nestedEntityGlobalResolverName = nestedEntityResolver.from || nestedEntityLocalResolverName;
+    
+        //
+        // Resolve nested entities.
+        //
+        await resolveNestedEntities(nestedEntityQuery, clonedEntity, nestedEntityGlobalResolverName, nestedEntityTypeName, queryGlobals, nestingLevel+2);
+    }
 }
 
 

@@ -241,4 +241,60 @@ describe("entity query", () => {
             },
         });
     });
+
+    it("resolver can return undefined for entity not found", async ()  => {
+
+        const query: IQuery = {
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                },
+            },
+        };
+
+        const root: IQueryResolver = {
+            get: {
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        return undefined;
+                    },
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(result).toEqual({
+            movie: undefined,
+        });
+    });
+
+    it("resolver can return null for entity not found", async ()  => {
+
+        const query: IQuery = {
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                },
+            },
+        };
+
+        const root: IQueryResolver = {
+            get: {
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        return null;
+                    },
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(result).toEqual({
+            movie: null,
+        });
+    });
 });

@@ -798,4 +798,108 @@ describe("nested entities", () => {
             ],
         });
     });    
+
+    it("nested entity resolver can return undefined to indicate entity not found", async ()  => {
+
+        const query: IQuery = {
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                    resolve: {
+                        director: {
+                        },
+                    },
+                },
+            },
+        };
+
+        const root: IQueryResolver = {
+            get: {
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("1234");
+        
+                        return {
+                            id: "1234",
+                            name: "Minority Report",
+                            year: 2002,
+                            director: "5678",
+                        };
+                    },
+
+                    nested: {
+                        director: {
+                            invoke: async (parent: any, args: any, context: any) => {
+                                return undefined;
+                            },
+                        },
+                    },
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(result).toEqual({
+            movie: {
+                id: "1234",
+                name: "Minority Report",
+                year: 2002,
+                director: undefined,
+            },
+        });
+    });
+
+    it("nested entity resolver can return null to indicate entity not found", async ()  => {
+
+        const query: IQuery = {
+            get: {
+                movie: {
+                    args: {
+                        id: "1234",
+                    },
+                    resolve: {
+                        director: {
+                        },
+                    },
+                },
+            },
+        };
+
+        const root: IQueryResolver = {
+            get: {
+                movie: {
+                    invoke: async (args: any, context: any) => {
+                        expect(args.id).toBe("1234");
+        
+                        return {
+                            id: "1234",
+                            name: "Minority Report",
+                            year: 2002,
+                            director: "5678",
+                        };
+                    },
+
+                    nested: {
+                        director: {
+                            invoke: async (parent: any, args: any, context: any) => {
+                                return null;
+                            },
+                        },
+                    },
+                },
+            },
+        };
+
+        const result = await miniql(query, root, {});
+        expect(result).toEqual({
+            movie: {
+                id: "1234",
+                name: "Minority Report",
+                year: 2002,
+                director: null,
+            },
+        });
+    });
 });
