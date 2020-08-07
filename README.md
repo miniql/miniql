@@ -1,4 +1,4 @@
-# miniql
+# MiniQL
 
 A tiny JSON-based query language inspired by GraphQL
 
