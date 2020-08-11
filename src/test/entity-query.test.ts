@@ -1,4 +1,5 @@
-import { miniql, IQuery, IQueryResolver } from "..";
+import { miniql, IQuery } from "..";
+import { IQueryResolver } from "@miniql/core-types";
 
 describe("entity query", () => {
 

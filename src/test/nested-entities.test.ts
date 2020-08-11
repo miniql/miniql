@@ -1,4 +1,5 @@
-import { miniql, IQueryResolver, IQuery } from "..";
+import { miniql, IQuery } from "..";
+import { IQueryResolver } from "@miniql/core-types";
 
 describe("nested entities", () => {
 
