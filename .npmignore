@@ -13,3 +13,5 @@ tslint.json
 nodemon.json
 jest.config.js
 .env
+images/
+docs/

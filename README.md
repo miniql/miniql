@@ -14,6 +14,10 @@ New to this? Check out the examples below or jump to [getting started](#getting-
 
 For a quick idea of what queries look like and how they work, jump straight into [the interactive example](https://miniql.github.io/miniql-interactive-example/).
 
+# MiniQL in a nutshell
+
+![Diagram of MiniQL](./images/miniql.png)
+
 # Examples
 
 ## Interactive example
