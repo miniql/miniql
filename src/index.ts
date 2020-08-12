@@ -1,5 +1,6 @@
 import { t } from "typy";
 import { IQueryOperationResolver, IQueryResolver, IEntityQueryResolver } from "@miniql/core-types";
+export { INestedEntityResolver, INestedEntityResolvers, IEntityQueryResolver, IQueryOperationResolver, IQueryResolver } from "@miniql/core-types";
 
 //
 // Represents a nested/related entity to be resovled.
