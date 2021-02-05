@@ -1,6 +1,6 @@
 {
     "name": "miniql",
-    "version": "0.0.21",
+    "version": "0.0.22",
     "description": "A tiny JSON-based query language inspired by GraphQL",
     "main": "build/index.js",
     "types": "build/index.d.ts",

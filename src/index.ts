@@ -83,11 +83,54 @@ function verbose(verbose: boolean, nestingLevel: number, msg: any) {
 }
 
 //
+// Deeply copy on object into anothyer.
+//
+function deepCopyObject(input: any, output: any, path: string): void {
+    for (const key of Object.keys(input)) {
+        const value = input[key];
+        const tt = t(value);
+        if (tt.isObject) {
+            if (output[key] === undefined) {
+                output[key] = {};
+            }
+            else if (!t(output[key]).isObject) {
+                throw new Error(`Expected existing value at ${path}/${key} to be an object in order to have sub-fields.`);
+            }
+            
+            deepCopyObject(value, output[key], `${path}/${key}`);
+        }
+        else {
+            if (output[key] !== undefined) {
+                throw new Error(`Error merging resolvers, ${path}/${key} is already defined!`)
+            }
+
+            output[key] = input[key];
+        }
+    }
+}
+
+//
 // Executes a query.
 //
-export async function miniql<T = any>(rootQuery: IQuery, rootResolver: IQueryResolver, context: any): Promise<T> {
+export async function miniql<T = any>(rootQuery: IQuery, rootResolver: IQueryResolver | IQueryResolver[], context: any): Promise<T> {
 
     const output: any = {};
+    let queryResolver: IQueryResolver;
+
+    if (t(rootResolver).isArray) {
+        queryResolver = {};
+
+        let index = 0;
+
+        for (const partialQueryResolver of (rootResolver as IQueryResolver[])) {
+            deepCopyObject(partialQueryResolver, queryResolver, `[${index}]`);
+
+            index += 1;
+        }
+    }
+    else {
+        queryResolver = rootResolver as IQueryResolver;
+    }
 
     const opNames = Object.keys(rootQuery); //todo: if more than 1 opName maybe nest output under opname?
     if (opNames.length <= 0) {
@@ -100,7 +143,7 @@ export async function miniql<T = any>(rootQuery: IQuery, rootResolver: IQueryRes
         verbose(context.verbose, 1, `= Invoking query operation "${opName}".`);
 
         const queryOperation = getQueryOperation(rootQuery, opName);
-        const operationResolver = getOperationResolver(rootResolver, opName);
+        const operationResolver = getOperationResolver(queryResolver, opName);
 
         for (const entityTypeName of Object.keys(queryOperation)) {
             await resolveRootEntity(queryOperation, output, entityTypeName, { operationResolver, opName, context }, 2);
