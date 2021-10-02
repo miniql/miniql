@@ -8,9 +8,7 @@ New to this? Check out the examples below or jump to [getting started](#getting-
 
 For a quick idea of what queries look like and how they work, jump straight into [the interactive example](https://miniql.github.io/miniql-interactive-example/).
 
-<a href="#support-the-developer">Skip to the end to see how you can **support the developer.**</a>
-
-Follow the developer on Twitter for updates: [@ashleydavis75](https://twitter.com/ashleydavis75).
+[Click here to support my work](https://www.codecapers.com.au/about#support-my-work)
 
 Love this? Please star this repo!
 
